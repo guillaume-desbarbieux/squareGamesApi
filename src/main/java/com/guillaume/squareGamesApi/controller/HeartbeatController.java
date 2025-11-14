@@ -39,7 +39,7 @@ public class HeartbeatController {
     @GetMapping("sensors")
     public MappingJacksonValue getSensors() {
         List<SensorModel> sensors = sensorService.findAll();
-        SimpleBeanPropertyFilter monFiltre = SimpleBeanPropertyFilter.serializeAllExcept("secret");
+        SimpleBeanPropertyFilter monFiltre = SimpleBeanPropertyFilter.serializeAllExcept("secret", "details");
         FilterProvider listeDeNosFiltres = new SimpleFilterProvider().addFilter("monFiltreDynamique", monFiltre);
         MappingJacksonValue produitsFiltres = new MappingJacksonValue(sensors);
         produitsFiltres.setFilters(listeDeNosFiltres);

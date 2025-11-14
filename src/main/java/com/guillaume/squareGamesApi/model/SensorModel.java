@@ -39,4 +39,12 @@ public class SensorModel {
     public void setSecret(String secret) {
         this.secret = secret;
     }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
 }
