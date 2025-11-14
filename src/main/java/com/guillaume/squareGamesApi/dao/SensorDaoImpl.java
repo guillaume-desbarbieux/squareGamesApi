@@ -12,9 +12,9 @@ public class SensorDaoImpl implements SensorDao {
     public static List<SensorModel> sensors = new ArrayList<>();
 
     static {
-        sensors.add(new SensorModel(1, "Montre", "Si tu lis ça, il faut revoir la sécu !"));
-        sensors.add(new SensorModel(2, "Ceinture", "Si tu lis ça, il faut revoir la sécu !"));
-        sensors.add(new SensorModel(3, "Cardio","Si tu lis ça, il faut revoir la sécu !"));
+        sensors.add(new SensorModel(1, "Montre", "Si tu lis ça, il faut revoir la sécu !", "détails longs, fastidieux et inutiles sur ce capteur"));
+        sensors.add(new SensorModel(2, "Ceinture", "Si tu lis ça, il faut revoir la sécu !", "détails longs, fastidieux et inutiles sur ce capteur"));
+        sensors.add(new SensorModel(3, "Cardio","Si tu lis ça, il faut revoir la sécu !", "détails longs, fastidieux et inutiles sur ce capteur"));
     }
 
     @Override

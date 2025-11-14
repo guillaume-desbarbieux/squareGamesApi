@@ -48,10 +48,16 @@ public class HeartbeatController {
     }
 
     @GetMapping("sensors/{id}")
-    public SensorModel getSensor(@PathVariable int id) {
+    public MappingJacksonValue getSensor(@PathVariable int id) {
         if (id < 0)
             return null;
-        return sensorService.findById(id);
+        SensorModel sensor = sensorService.findById(id);
+        SimpleBeanPropertyFilter monFiltre = SimpleBeanPropertyFilter.serializeAllExcept("secret");
+        FilterProvider listeDeNosFiltres = new SimpleFilterProvider().addFilter("monFiltreDynamique", monFiltre);
+        MappingJacksonValue produitFiltre = new MappingJacksonValue(sensor);
+        produitFiltre.setFilters(listeDeNosFiltres);
+
+        return produitFiltre;
     }
 
     @PutMapping("sensors/{id}")

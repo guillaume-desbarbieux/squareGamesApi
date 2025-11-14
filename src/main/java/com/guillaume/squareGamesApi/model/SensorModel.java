@@ -7,11 +7,13 @@ public class SensorModel {
     private String name;
     private int id;
     private String secret;
+    private String details;
 
-    public SensorModel(int id, String name, String secret){
+    public SensorModel(int id, String name, String secret, String details){
         this.id = id;
         this.name = name;
         this.secret = secret;
+        this.details = details;
     }
 
     public String getName() {
