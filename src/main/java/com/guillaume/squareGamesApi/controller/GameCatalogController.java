@@ -1,18 +1,9 @@
 package com.guillaume.squareGamesApi.controller;
 
 import com.guillaume.squareGamesApi.service.GameCatalog;
-import fr.le_campus_numerique.square_games.engine.CellPosition;
-import fr.le_campus_numerique.square_games.engine.Game;
-import fr.le_campus_numerique.square_games.engine.GameStatus;
-import fr.le_campus_numerique.square_games.engine.Token;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+
 
 @RestController
 @RequestMapping("games")
