@@ -1,4 +1,4 @@
-package com.guillaume.squareGamesApi.engine;
+package com.guillaume.squareGamesApi.config;
 
 import fr.le_campus_numerique.square_games.engine.connectfour.ConnectFourGameFactory;
 import fr.le_campus_numerique.square_games.engine.taquin.TaquinGameFactory;
@@ -9,17 +9,17 @@ import org.springframework.context.annotation.Bean;
 public class Configuration {
 
     @Bean
-    public TicTacToeGameFactory ticTacToeGameFactory() {
+    TicTacToeGameFactory ticTacToeGameFactory() {
         return new TicTacToeGameFactory();
     }
 
     @Bean
-    public ConnectFourGameFactory connectFourGameFactory() {
+    ConnectFourGameFactory connectFourGameFactory() {
         return new ConnectFourGameFactory();
     }
 
     @Bean
-    public TaquinGameFactory taquinGameFactory() {
+    TaquinGameFactory taquinGameFactory() {
         return new TaquinGameFactory();
     }
 
