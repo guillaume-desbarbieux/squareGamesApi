@@ -1,15 +1,24 @@
 meta {
   name: createGame
   type: http
-  seq: 1
+  seq: 2
 }
 
 post {
   url: http://localhost:8181/games
-  body: none
+  body: json
   auth: inherit
+}
+
+body:json {
+  {
+    "identifier":"tictactoe",
+    "playerCount":"2",
+    "boardSize":"5"
+  }
 }
 
 settings {
   encodeUrl: true
+  timeout: 0
 }

@@ -2,12 +2,11 @@ package com.guillaume.squareGamesApi.service;
 
 import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
-import fr.le_campus_numerique.square_games.engine.CellPosition;
-import fr.le_campus_numerique.square_games.engine.Game;
-import fr.le_campus_numerique.square_games.engine.Token;
+import fr.le_campus_numerique.square_games.engine.*;
 import fr.le_campus_numerique.square_games.engine.connectfour.ConnectFourGameFactory;
 import fr.le_campus_numerique.square_games.engine.taquin.TaquinGameFactory;
 import fr.le_campus_numerique.square_games.engine.tictactoe.TicTacToeGameFactory;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +26,17 @@ public class GameServiceImpl implements GameService {
 
     public GameServiceImpl() {
         games = new ArrayList<>();
+
+    }
+
+    @PostConstruct
+    public void initForTest() throws InconsistentGameDefinitionException {
+        games.add(ticTacToeGameFactory.createGameWithIds(
+                UUID.fromString("fab835a0-5b1f-453e-a113-0a80d89b0803"),
+                3,
+                List.of(UUID.fromString("6f557748-aee4-417a-bf5e-7972874d060a"), UUID.fromString("0d1fafd2-4ef5-4635-9ad2-13d2545810e6")),
+                List.of(),
+                List.of()));
     }
 
 
@@ -102,8 +112,32 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Boolean playMove(UUID gameId, GameMoveParam gameMove) {
-        return false;
+    public void playMove(UUID gameId, GameMoveParam gameMove) throws InvalidPositionException, IllegalArgumentException {
+        Game game = getGame(gameId);
+        if (game == null)
+            return;
+
+        if (gameMove.fromCell() != null) {
+            Token token = getBoardTokens(gameId).get(gameMove.fromCell());
+            if (token == null)
+                throw new IllegalArgumentException("No token on the board at this position");
+            else {
+                token.moveTo(gameMove.toCell());
+                return;
+            }
+        }
+
+        if (gameMove.name() != null) {
+            Collection<Token> tokens = getRemainingTokens(gameId);
+            for (Token token : tokens)
+                if (Objects.equals(token.getName(), gameMove.name())) {
+                    token.moveTo(gameMove.toCell());
+                    return;
+                }
+            throw new IllegalArgumentException("No tokens remaining with this name");
+        }
+
+        throw new IllegalArgumentException("We can't identify the token you choose");
     }
 
     @Override

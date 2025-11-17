@@ -5,6 +5,7 @@ import com.guillaume.squareGamesApi.model.GameMoveParam;
 import com.guillaume.squareGamesApi.service.GameService;
 import fr.le_campus_numerique.square_games.engine.CellPosition;
 import fr.le_campus_numerique.square_games.engine.Game;
+import fr.le_campus_numerique.square_games.engine.InvalidPositionException;
 import fr.le_campus_numerique.square_games.engine.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ public class GameController {
     private GameService gameService;
 
     @GetMapping("/existing")
-    public ResponseEntity<Collection<Game>> getGames(){
+    public ResponseEntity<Collection<Game>> getGames() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(gameService.getGames());
@@ -97,9 +98,9 @@ public class GameController {
     @GetMapping("/{gameId}/allowed-moves/from-remaining")
     public ResponseEntity<Set<CellPosition>> getAllowedMovesFromRemaining(@PathVariable UUID gameId, @RequestParam String name) {
 
-        if (gameService.getGame(gameId) == null)
+        if (gameService.getGame(gameId) == null) {
             return ResponseEntity.notFound().build();
-
+        }
         Set<CellPosition> moves = gameService.getAllowedMovesFromRemaining(gameId, name);
 
         return ResponseEntity
@@ -110,11 +111,10 @@ public class GameController {
     @GetMapping("/{gameId}/allowed-moves/from-board")
     public ResponseEntity<Set<CellPosition>> getAllowedMovesFromBoard(@PathVariable UUID gameId, @RequestParam int x, @RequestParam int y) {
 
+        CellPosition cellPosition = new CellPosition(x,y);
+
         if (gameService.getGame(gameId) == null)
             return ResponseEntity.notFound().build();
-
-        //TODO new pour le serrvie
-        CellPosition cellPosition = new CellPosition(x, y);
 
         Set<CellPosition> moves = gameService.getAllowedMovesFromBoard(gameId, cellPosition);
 
@@ -134,15 +134,15 @@ public class GameController {
                     .status((HttpStatus.BAD_REQUEST))
                     .body("Champ_manquant_ou_nul");
 
-        Boolean played = gameService.playMove(gameId, gameMove);
-
-        if (played)
+        try {
+            gameService.playMove(gameId, gameMove);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body("Joli_coup_!" + gameMove);
-        else
+        } catch (InvalidPositionException | IllegalArgumentException e) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body("Bad_Move");
+                    .body(e.getMessage());
+        }
     }
 }
