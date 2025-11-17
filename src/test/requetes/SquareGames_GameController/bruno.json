@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "SquareGames_GameController",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

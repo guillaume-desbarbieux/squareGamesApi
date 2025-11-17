@@ -1,0 +1,21 @@
+meta {
+  name: get Allowed Moves from board
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:8181/games/542cf4a1-c6e1-427c-9dd0-26d6a2f711cf/allowed-moves/from-board?x=1&y=1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  x: 1
+  y: 1
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

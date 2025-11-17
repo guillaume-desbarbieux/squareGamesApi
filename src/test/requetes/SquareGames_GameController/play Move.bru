@@ -1,0 +1,29 @@
+meta {
+  name: play Move
+  type: http
+  seq: 8
+}
+
+post {
+  url: http://localhost:8181/games/542cf4a1-c6e1-427c-9dd0-26d6a2f711cf/play-move
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "fromBoard":"true",
+    "name":"myToken",
+    "fromCell":{"x":"1",
+                "y":"2"
+               },
+    "toCell":{"x":"2",
+              "y":"2"
+             }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

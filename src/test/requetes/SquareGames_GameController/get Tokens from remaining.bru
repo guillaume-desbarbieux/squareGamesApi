@@ -1,0 +1,16 @@
+meta {
+  name: get Tokens from remaining
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:8181/games/542cf4a1-c6e1-427c-9dd0-26d6a2f711cf/tokens/from-remaining
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
