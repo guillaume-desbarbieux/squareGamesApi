@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.*;
 
 @RestController
@@ -21,26 +23,54 @@ public class GameController {
     @Autowired
     private GameService gameService;
 
-    @GetMapping("/existing")
-    public ResponseEntity<Collection<Game>> getGames() {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(gameService.getGames());
+    @GetMapping()
+    public ResponseEntity<Collection<String>> getGameIdentifiers() {
+        Collection<String> gameIdentifiers = gameService.getGameIdentifiers();
+
+        if (gameIdentifiers.isEmpty())
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .body(gameIdentifiers);
+        else
+            return ResponseEntity.ok(gameIdentifiers);
+    }
+
+    @GetMapping("/UUID")
+    public ResponseEntity<Collection<Game>> getGamesUUID() {
+        Collection<Game> gameUUIDs = gameService.getGames();
+
+        if (gameUUIDs.isEmpty())
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .body(gameUUIDs);
+        else
+            return ResponseEntity.ok(gameUUIDs);
     }
 
     @PostMapping
     public ResponseEntity<String> createGame(@RequestBody GameCreationParams params) {
-        if (params.playerCount() == 0 || params.boardSize() == 0 ||
-                (!Objects.equals(params.identifier(), "tictactoe") && !Objects.equals(params.identifier(), "connect4") && !Objects.equals(params.identifier(), "15 puzzle")))
+        if (!gameService.getGameIdentifiers().contains(params.identifier())
+                || params.playerCount() == 0
+                || params.boardSize() == 0)
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Champ_manquant_ou_invalide");
 
-        UUID gameId = gameService.createGame(params);
+        try {
+            UUID gameId = gameService.createGame(params);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(gameId.toString());
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("/{id}")
+                    .buildAndExpand(gameId)
+                    .toUri();
+            return ResponseEntity.created(location).build();
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 
     @GetMapping("/{gameId}")
@@ -50,10 +80,8 @@ public class GameController {
 
         if (game == null)
             return ResponseEntity.notFound().build();
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(game);
+        else
+            return ResponseEntity.ok(game);
     }
 
     @GetMapping("/{gameId}/tokens/from-board")
@@ -63,10 +91,12 @@ public class GameController {
             return ResponseEntity.notFound().build();
 
         Map<CellPosition, Token> tokens = gameService.getBoardTokens(gameId);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(tokens);
+        if (tokens.isEmpty())
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .body(tokens);
+        else
+            return ResponseEntity.ok(gameService.getBoardTokens(gameId));
     }
 
     @GetMapping("/{gameId}/tokens/from-remaining")
@@ -76,51 +106,43 @@ public class GameController {
             return ResponseEntity.notFound().build();
 
         Collection<Token> tokens = gameService.getRemainingTokens(gameId);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(tokens);
+        if (tokens.isEmpty())
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .build();
+        else
+            return ResponseEntity.ok(gameService.getRemainingTokens(gameId));
     }
+
+
+    //TODO : renvoyer code adéquat si liste vide pour tout le bas !
+
 
     @GetMapping("/{gameId}/tokens/from-removed")
     public ResponseEntity<Collection<Token>> getRemovedTokens(@PathVariable UUID gameId) {
 
         if (gameService.getGame(gameId) == null)
             return ResponseEntity.notFound().build();
-
-        Collection<Token> tokens = gameService.getRemovedTokens(gameId);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(tokens);
+        else
+            return ResponseEntity.ok(gameService.getRemovedTokens(gameId));
     }
 
     @GetMapping("/{gameId}/allowed-moves/from-remaining")
     public ResponseEntity<Set<CellPosition>> getAllowedMovesFromRemaining(@PathVariable UUID gameId, @RequestParam String name) {
 
-        if (gameService.getGame(gameId) == null) {
+        if (gameService.getGame(gameId) == null)
             return ResponseEntity.notFound().build();
-        }
-        Set<CellPosition> moves = gameService.getAllowedMovesFromRemaining(gameId, name);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(moves);
+        else
+            return ResponseEntity.ok(gameService.getAllowedMovesFromRemaining(gameId, name));
     }
 
     @GetMapping("/{gameId}/allowed-moves/from-board")
     public ResponseEntity<Set<CellPosition>> getAllowedMovesFromBoard(@PathVariable UUID gameId, @RequestParam int x, @RequestParam int y) {
 
-        CellPosition cellPosition = new CellPosition(x,y);
-
         if (gameService.getGame(gameId) == null)
             return ResponseEntity.notFound().build();
-
-        Set<CellPosition> moves = gameService.getAllowedMovesFromBoard(gameId, cellPosition);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(moves);
+        else
+            return ResponseEntity.ok(gameService.getAllowedMovesFromBoard(gameId, new CellPosition(x, y)));
     }
 
     @PostMapping("/{gameId}/play-move")
@@ -136,9 +158,7 @@ public class GameController {
 
         try {
             gameService.playMove(gameId, gameMove);
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body("Joli_coup_!" + gameMove);
+            return ResponseEntity.ok("Joli_coup_!" + gameMove);
         } catch (InvalidPositionException | IllegalArgumentException e) {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)

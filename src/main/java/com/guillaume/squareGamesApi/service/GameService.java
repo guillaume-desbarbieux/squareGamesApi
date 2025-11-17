@@ -13,7 +13,8 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface GameService {
-    UUID createGame(GameCreationParams params);
+    Collection<String> getGameIdentifiers();
+    UUID createGame(GameCreationParams params) throws IllegalArgumentException;
     Game getGame(UUID gameId);
     Map<CellPosition, Token> getBoardTokens(UUID gameId);
     Collection<Token> getRemainingTokens(UUID gameId);

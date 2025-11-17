@@ -39,18 +39,23 @@ public class GameServiceImpl implements GameService {
                 List.of()));
     }
 
+    @Override
+    public Collection<String> getGameIdentifiers() {
+        return List.of(
+                ticTacToeGameFactory.getGameFactoryId(),
+                connectFourGameFactory.getGameFactoryId(),
+                taquinGameFactory.getGameFactoryId());
+    }
+
 
     @Override
-    public UUID createGame(GameCreationParams params) {
+    public UUID createGame(GameCreationParams params) throws IllegalArgumentException {
         Game game = switch (params.identifier()) {
             case "tictactoe" -> ticTacToeGameFactory.createGame(params.playerCount(), params.boardSize());
             case "connect4" -> connectFourGameFactory.createGame(params.playerCount(), params.boardSize());
             case "15 puzzle" -> taquinGameFactory.createGame(params.playerCount(), params.boardSize());
-            default -> null;
+            default -> throw new IllegalArgumentException("Unknown game Identifier : " + params.identifier());
         };
-
-        if (game == null)
-            return null;
 
         games.add(game);
         return game.getId();
@@ -59,7 +64,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public Game getGame(UUID gameId) {
         for (Game game : games)
-            if (Objects.equals(game.getId().toString(), gameId.toString()))
+            if (game.getId().toString().equals(gameId.toString()))
                 return game;
         return null;
     }
