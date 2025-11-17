@@ -16,11 +16,18 @@ public class GameController {
 
     @PostMapping
     public ResponseEntity<String> createGame(@RequestBody GameCreationParams params) {
+        if (params.identifier() == null || params.playerCount() == 0 || params.boardSize() == 0)
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Champ_manquant_ou_nul");
+
         // TODO - créer un nouveau jeu
+
         String gameId = UUID.randomUUID().toString();
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(gameId);
+                .body(gameId + params.toString());
     }
 
     @GetMapping("/{gameId}")
@@ -28,7 +35,7 @@ public class GameController {
         // TODO - récupérer le jeu en question
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(null);
+                .body(gameId);
     }
 
     @GetMapping("/{gameId}/tokens/from-board")
@@ -73,9 +80,15 @@ public class GameController {
 
     @PostMapping("/{gameId}/play-move")
     public ResponseEntity<String> playMove(@PathVariable UUID gameId, @RequestBody GameMoveParam gameMove) {
+
+        if (gameMove.fromBoard() == null || gameMove.toCell() == null)
+            return ResponseEntity
+                    .status((HttpStatus.BAD_REQUEST))
+                    .body("Champ_manquant_ou_nul");
+
         // TODO - éxécuter le Move
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body("Joli coup !");
+                .body("Joli_coup_!" + gameMove.toString());
     }
 }
