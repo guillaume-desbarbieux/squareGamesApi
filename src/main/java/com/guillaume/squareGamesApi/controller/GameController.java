@@ -20,12 +20,20 @@ public class GameController {
     @Autowired
     private GameService gameService;
 
+    @GetMapping("/existing")
+    public ResponseEntity<Collection<Game>> getGames(){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(gameService.getGames());
+    }
+
     @PostMapping
     public ResponseEntity<String> createGame(@RequestBody GameCreationParams params) {
-        if (params.identifier() == null || params.playerCount() == 0 || params.boardSize() == 0)
+        if (params.playerCount() == 0 || params.boardSize() == 0 ||
+                (!Objects.equals(params.identifier(), "tictactoe") && !Objects.equals(params.identifier(), "connect4") && !Objects.equals(params.identifier(), "15 puzzle")))
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("Champ_manquant_ou_nul");
+                    .body("Champ_manquant_ou_invalide");
 
         UUID gameId = gameService.createGame(params);
 
@@ -39,13 +47,19 @@ public class GameController {
 
         Game game = gameService.getGame(gameId);
 
+        if (game == null)
+            return ResponseEntity.notFound().build();
+
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(gameId);
+                .body(game);
     }
 
     @GetMapping("/{gameId}/tokens/from-board")
     public ResponseEntity<Map<CellPosition, Token>> getBoardTokens(@PathVariable UUID gameId) {
+
+        if (gameService.getGame(gameId) == null)
+            return ResponseEntity.notFound().build();
 
         Map<CellPosition, Token> tokens = gameService.getBoardTokens(gameId);
 
@@ -57,6 +71,9 @@ public class GameController {
     @GetMapping("/{gameId}/tokens/from-remaining")
     public ResponseEntity<Collection<Token>> getRemainingTokens(@PathVariable UUID gameId) {
 
+        if (gameService.getGame(gameId) == null)
+            return ResponseEntity.notFound().build();
+
         Collection<Token> tokens = gameService.getRemainingTokens(gameId);
 
         return ResponseEntity
@@ -66,6 +83,9 @@ public class GameController {
 
     @GetMapping("/{gameId}/tokens/from-removed")
     public ResponseEntity<Collection<Token>> getRemovedTokens(@PathVariable UUID gameId) {
+
+        if (gameService.getGame(gameId) == null)
+            return ResponseEntity.notFound().build();
 
         Collection<Token> tokens = gameService.getRemovedTokens(gameId);
 
@@ -77,6 +97,9 @@ public class GameController {
     @GetMapping("/{gameId}/allowed-moves/from-remaining")
     public ResponseEntity<Set<CellPosition>> getAllowedMovesFromRemaining(@PathVariable UUID gameId, @RequestParam String name) {
 
+        if (gameService.getGame(gameId) == null)
+            return ResponseEntity.notFound().build();
+
         Set<CellPosition> moves = gameService.getAllowedMovesFromRemaining(gameId, name);
 
         return ResponseEntity
@@ -87,7 +110,12 @@ public class GameController {
     @GetMapping("/{gameId}/allowed-moves/from-board")
     public ResponseEntity<Set<CellPosition>> getAllowedMovesFromBoard(@PathVariable UUID gameId, @RequestParam int x, @RequestParam int y) {
 
-        CellPosition cellPosition = new CellPosition(x,y);
+        if (gameService.getGame(gameId) == null)
+            return ResponseEntity.notFound().build();
+
+        //TODO new pour le serrvie
+        CellPosition cellPosition = new CellPosition(x, y);
+
         Set<CellPosition> moves = gameService.getAllowedMovesFromBoard(gameId, cellPosition);
 
         return ResponseEntity
@@ -98,7 +126,10 @@ public class GameController {
     @PostMapping("/{gameId}/play-move")
     public ResponseEntity<String> playMove(@PathVariable UUID gameId, @RequestBody GameMoveParam gameMove) {
 
-        if (gameMove.fromBoard() == null || gameMove.toCell() == null)
+        if (gameService.getGame(gameId) == null)
+            return ResponseEntity.notFound().build();
+
+        if (gameMove.toCell() == null)
             return ResponseEntity
                     .status((HttpStatus.BAD_REQUEST))
                     .body("Champ_manquant_ou_nul");
@@ -111,7 +142,7 @@ public class GameController {
                     .body("Joli_coup_!" + gameMove);
         else
             return ResponseEntity
-                    .status(HttpStatus.I_AM_A_TEAPOT)
+                    .status(HttpStatus.UNAUTHORIZED)
                     .body("Bad_Move");
     }
 }

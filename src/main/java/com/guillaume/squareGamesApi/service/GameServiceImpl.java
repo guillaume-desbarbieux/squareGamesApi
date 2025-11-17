@@ -25,7 +25,7 @@ public class GameServiceImpl implements GameService {
 
     Collection<Game> games;
 
-    public GameServiceImpl(){
+    public GameServiceImpl() {
         games = new ArrayList<>();
     }
 
@@ -49,7 +49,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public Game getGame(UUID gameId) {
         for (Game game : games)
-            if (game.getId() == gameId)
+            if (Objects.equals(game.getId().toString(), gameId.toString()))
                 return game;
         return null;
     }
@@ -104,5 +104,10 @@ public class GameServiceImpl implements GameService {
     @Override
     public Boolean playMove(UUID gameId, GameMoveParam gameMove) {
         return false;
+    }
+
+    @Override
+    public Collection<Game> getGames() {
+        return games;
     }
 }

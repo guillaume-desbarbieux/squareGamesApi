@@ -20,5 +20,5 @@ public interface GameService {
     Set<CellPosition> getAllowedMovesFromRemaining(UUID gameID, String name);
     Set<CellPosition> getAllowedMovesFromBoard(UUID gameID, CellPosition cellPosition);
     Boolean playMove(UUID gameId, GameMoveParam gameMove);
-
+    Collection<Game> getGames();
 }
