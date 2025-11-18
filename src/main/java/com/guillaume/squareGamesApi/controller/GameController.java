@@ -3,10 +3,7 @@ package com.guillaume.squareGamesApi.controller;
 import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
 import com.guillaume.squareGamesApi.service.GameService;
-import fr.le_campus_numerique.square_games.engine.CellPosition;
-import fr.le_campus_numerique.square_games.engine.Game;
-import fr.le_campus_numerique.square_games.engine.InvalidPositionException;
-import fr.le_campus_numerique.square_games.engine.Token;
+import fr.le_campus_numerique.square_games.engine.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,7 +48,6 @@ public class GameController {
     @PostMapping
     public ResponseEntity<String> createGame(@RequestBody GameCreationParams params) {
         if (!gameService.getGameIdentifiers().contains(params.identifier())
-                || params.playerCount() == 0
                 || params.boardSize() == 0)
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -67,7 +63,7 @@ public class GameController {
                     .toUri();
             return ResponseEntity.created(location).body(gameId.toString());
 
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | InconsistentGameDefinitionException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
