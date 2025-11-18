@@ -20,8 +20,11 @@ import java.util.*;
 @RequestMapping("/games")
 public class GameController {
 
-    @Autowired
-    private GameService gameService;
+    private final GameService gameService;
+
+    public GameController(GameService gameService) {
+        this.gameService = gameService;
+    }
 
     @GetMapping()
     public ResponseEntity<Collection<String>> getGameIdentifiers() {

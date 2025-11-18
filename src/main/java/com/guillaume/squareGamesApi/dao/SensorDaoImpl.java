@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public class SensorDaoImpl implements SensorDao {
 
-    public static List<SensorModel> sensors = new ArrayList<>();
+    public final static List<SensorModel> sensors = new ArrayList<>();
 
     static {
         sensors.add(new SensorModel(1, "Montre", "Si tu lis ça, il faut revoir la sécu !", "détails longs, fastidieux et inutiles sur ce capteur"));

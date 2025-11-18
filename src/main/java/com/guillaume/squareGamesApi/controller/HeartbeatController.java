@@ -15,14 +15,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
-
 @RestController
 public class HeartbeatController {
 
-    @Autowired
     private final HeartBeatService heartBeatService;
-
-    @Autowired
     private final SensorService sensorService;
 
     public HeartbeatController(HeartBeatService heartBeatService, SensorService sensorService) {

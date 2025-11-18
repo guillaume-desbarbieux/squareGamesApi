@@ -10,8 +10,11 @@ import java.util.List;
 @Service
 public class SensorServiceImpl implements SensorService {
 
-    @Autowired
-    private SensorDao sensorDao;
+    private final SensorDao sensorDao;
+
+    public SensorServiceImpl(SensorDao sensorDao) {
+        this.sensorDao = sensorDao;
+    }
 
     @Override
     public List<SensorModel> findAll() {
