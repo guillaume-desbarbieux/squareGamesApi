@@ -47,11 +47,10 @@ public class GameController {
 
     @PostMapping
     public ResponseEntity<String> createGame(@RequestBody GameCreationParams params) {
-        if (!gameService.getGameIdentifiers().contains(params.identifier())
-                || params.boardSize() == 0)
+        if (!gameService.getGameIdentifiers().contains(params.identifier()))
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("Champ_manquant_ou_invalide");
+                    .body("unknown_Game_identifier");
 
         try {
             UUID gameId = gameService.createGame(params);

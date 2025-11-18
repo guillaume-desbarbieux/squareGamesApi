@@ -6,6 +6,7 @@ import fr.le_campus_numerique.square_games.engine.InconsistentGameDefinitionExce
 import fr.le_campus_numerique.square_games.engine.TokenPosition;
 import fr.le_campus_numerique.square_games.engine.tictactoe.TicTacToeGameFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -17,16 +18,25 @@ import java.util.UUID;
 public class TicTacToePlugin implements GamePlugin {
 
     private final TicTacToeGameFactory ticTacToeGameFactory;
-    int defaultPlayerCount;
+    private final int defaultPlayerCount;
+    private final int defaultBoardSize;
+    private final MessageSource messageSource;
 
-    public TicTacToePlugin(TicTacToeGameFactory ticTacToeGameFactory, @Value("${game.tictactoe.default-player-count}") int defaultPlayerCount) {
+    public TicTacToePlugin(TicTacToeGameFactory ticTacToeGameFactory,
+                           @Value("${game.tictactoe.default-player-count}") int defaultPlayerCount,
+                           @Value("${game.tictactoe.default-board-size}") int defaultBoardSize,
+                           MessageSource messageSource, MessageSource messageSource1) {
         this.ticTacToeGameFactory = ticTacToeGameFactory;
         this.defaultPlayerCount = defaultPlayerCount;
+        this.defaultBoardSize = defaultBoardSize;
+        this.messageSource = messageSource1;
     }
 
     @Override
     public Game createGame(GameCreationParams params) {
-        return ticTacToeGameFactory.createGame(defaultPlayerCount, params.boardSize());
+        int playerCount = params.playerCount() == 0 ? defaultPlayerCount : params.playerCount();
+        int boardSize = params.boardSize() == 0 ? defaultBoardSize : params.boardSize();
+        return ticTacToeGameFactory.createGame(playerCount, boardSize);
     }
 
     @Override
@@ -36,7 +46,8 @@ public class TicTacToePlugin implements GamePlugin {
 
     @Override
     public String getName(Locale language) {
-        return "yy";
+        return "";
+//        return messageSource.getMessage();
     }
 
     @Override
