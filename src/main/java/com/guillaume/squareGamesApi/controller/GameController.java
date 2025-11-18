@@ -6,7 +6,7 @@ import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
 import com.guillaume.squareGamesApi.service.GameService;
 import fr.le_campus_numerique.square_games.engine.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,15 +27,16 @@ public class GameController {
     }
 
     @GetMapping()
-    public ResponseEntity<Collection<String>> getGameIdentifiers() {
-        Collection<String> gameIdentifiers = gameService.getGameIdentifiers();
+    public ResponseEntity<Map<String, String>> getCatalog() {
+        Locale locale = LocaleContextHolder.getLocale();
+        Map<String, String> catalog = gameService.getCatalog(locale);
 
-        if (gameIdentifiers.isEmpty())
+        if (catalog.isEmpty())
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
-                    .body(gameIdentifiers);
+                    .build();
         else
-            return ResponseEntity.ok(gameIdentifiers);
+            return ResponseEntity.ok(catalog);
     }
 
     @GetMapping("/UUID")
@@ -71,7 +72,7 @@ public class GameController {
                     .toUri();
             return ResponseEntity.created(location).body(gameId.toString());
 
-        } catch (IllegalArgumentException | InconsistentGameDefinitionException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
