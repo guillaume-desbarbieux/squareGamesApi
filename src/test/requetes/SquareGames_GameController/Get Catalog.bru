@@ -1,0 +1,20 @@
+meta {
+  name: Get Catalog
+  type: http
+  seq: 10
+}
+
+get {
+  url: http://localhost:8181/games
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept-Language: en
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
