@@ -3,68 +3,63 @@ package com.guillaume.squareGamesApi.service;
 import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
 import fr.le_campus_numerique.square_games.engine.*;
-import fr.le_campus_numerique.square_games.engine.connectfour.ConnectFourGameFactory;
-import fr.le_campus_numerique.square_games.engine.taquin.TaquinGameFactory;
-import fr.le_campus_numerique.square_games.engine.tictactoe.TicTacToeGameFactory;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 public class GameServiceImpl implements GameService {
+    private final List<GameFactory> factories;
+    private final Map<String, GameFactory> factoryMap;
+    private final Collection<Game> games;
 
-    @Autowired
-    TicTacToeGameFactory ticTacToeGameFactory;
-    @Autowired
-    ConnectFourGameFactory connectFourGameFactory;
-    @Autowired
-    TaquinGameFactory taquinGameFactory;
-
-    Collection<Game> games;
-
-    public GameServiceImpl() {
+    public GameServiceImpl(List<GameFactory> factories) {
+        this.factories = factories;
+        factoryMap = new HashMap<>();
         games = new ArrayList<>();
 
+        for (GameFactory factory : factories)
+            factoryMap.put(factory.getGameFactoryId(), factory);
     }
 
     @PostConstruct
     public void initForTest() throws InconsistentGameDefinitionException {
-        games.add(ticTacToeGameFactory.createGameWithIds(
+        Game testGame = factories.getFirst().createGameWithIds(
                 UUID.fromString("fab835a0-5b1f-453e-a113-0a80d89b0803"),
                 3,
                 List.of(UUID.fromString("6f557748-aee4-417a-bf5e-7972874d060a"), UUID.fromString("0d1fafd2-4ef5-4635-9ad2-13d2545810e6")),
                 List.of(),
-                List.of()));
+                List.of());
+
+        games.add(testGame);
     }
 
     @Override
     public Collection<String> getGameIdentifiers() {
-        return List.of(
-                ticTacToeGameFactory.getGameFactoryId(),
-                connectFourGameFactory.getGameFactoryId(),
-                taquinGameFactory.getGameFactoryId());
+        Collection<String> gameIdentifiers = new ArrayList<>();
+        for (GameFactory factory : factories)
+            gameIdentifiers.add(factory.getGameFactoryId());
+        return gameIdentifiers;
     }
-
 
     @Override
     public UUID createGame(GameCreationParams params) throws IllegalArgumentException {
-        Game game = switch (params.identifier()) {
-            case "tictactoe" -> ticTacToeGameFactory.createGame(params.playerCount(), params.boardSize());
-            case "connect4" -> connectFourGameFactory.createGame(params.playerCount(), params.boardSize());
-            case "15 puzzle" -> taquinGameFactory.createGame(params.playerCount(), params.boardSize());
-            default -> throw new IllegalArgumentException("Unknown game Identifier : " + params.identifier());
-        };
+        GameFactory factory = factoryMap.get(params.identifier());
 
+        if (factory == null)
+            throw new IllegalArgumentException("Unknown game Identifier : " + params.identifier());
+
+        Game game = factory.createGame(params.playerCount(), params.boardSize());
         games.add(game);
         return game.getId();
     }
 
+
     @Override
     public Game getGame(UUID gameId) {
         for (Game game : games)
-            if (game.getId().toString().equals(gameId.toString()))
+            if (game.getId().equals(gameId))
                 return game;
         return null;
     }

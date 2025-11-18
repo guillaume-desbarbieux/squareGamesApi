@@ -16,6 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.*;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/games")
 public class GameController {
@@ -64,7 +65,7 @@ public class GameController {
                     .path("/{id}")
                     .buildAndExpand(gameId)
                     .toUri();
-            return ResponseEntity.created(location).build();
+            return ResponseEntity.created(location).body(gameId.toString());
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity
@@ -92,9 +93,7 @@ public class GameController {
 
         Map<CellPosition, Token> tokens = gameService.getBoardTokens(gameId);
         if (tokens.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-                    .body(tokens);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(tokens);
         else
             return ResponseEntity.ok(gameService.getBoardTokens(gameId));
     }
@@ -107,24 +106,22 @@ public class GameController {
 
         Collection<Token> tokens = gameService.getRemainingTokens(gameId);
         if (tokens.isEmpty())
-            return ResponseEntity
-                    .status(HttpStatus.NO_CONTENT)
-                    .build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         else
             return ResponseEntity.ok(gameService.getRemainingTokens(gameId));
     }
-
-
-    //TODO : renvoyer code adéquat si liste vide pour tout le bas !
-
 
     @GetMapping("/{gameId}/tokens/from-removed")
     public ResponseEntity<Collection<Token>> getRemovedTokens(@PathVariable UUID gameId) {
 
         if (gameService.getGame(gameId) == null)
             return ResponseEntity.notFound().build();
+
+        Collection<Token> tokens = gameService.getRemovedTokens(gameId);
+        if (tokens.isEmpty())
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         else
-            return ResponseEntity.ok(gameService.getRemovedTokens(gameId));
+            return ResponseEntity.ok(tokens);
     }
 
     @GetMapping("/{gameId}/allowed-moves/from-remaining")
@@ -132,8 +129,12 @@ public class GameController {
 
         if (gameService.getGame(gameId) == null)
             return ResponseEntity.notFound().build();
+
+        Set<CellPosition> moves = gameService.getAllowedMovesFromRemaining(gameId, name);
+        if (moves.isEmpty())
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         else
-            return ResponseEntity.ok(gameService.getAllowedMovesFromRemaining(gameId, name));
+            return ResponseEntity.ok(moves);
     }
 
     @GetMapping("/{gameId}/allowed-moves/from-board")
@@ -141,8 +142,12 @@ public class GameController {
 
         if (gameService.getGame(gameId) == null)
             return ResponseEntity.notFound().build();
+
+        Set<CellPosition> moves = gameService.getAllowedMovesFromBoard(gameId, new CellPosition(x, y));
+        if (moves.isEmpty())
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         else
-            return ResponseEntity.ok(gameService.getAllowedMovesFromBoard(gameId, new CellPosition(x, y)));
+            return ResponseEntity.ok(moves);
     }
 
     @PostMapping("/{gameId}/play-move")
@@ -151,7 +156,8 @@ public class GameController {
         if (gameService.getGame(gameId) == null)
             return ResponseEntity.notFound().build();
 
-        if (gameMove.toCell() == null)
+        if (gameMove.toCell() == null
+                || (gameMove.name() == null && gameMove.fromCell() == null))
             return ResponseEntity
                     .status((HttpStatus.BAD_REQUEST))
                     .body("Champ_manquant_ou_nul");
