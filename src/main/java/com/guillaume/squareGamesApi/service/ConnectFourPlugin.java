@@ -4,7 +4,7 @@ import com.guillaume.squareGamesApi.model.GameCreationParams;
 import fr.le_campus_numerique.square_games.engine.Game;
 import fr.le_campus_numerique.square_games.engine.InconsistentGameDefinitionException;
 import fr.le_campus_numerique.square_games.engine.TokenPosition;
-import fr.le_campus_numerique.square_games.engine.tictactoe.TicTacToeGameFactory;
+import fr.le_campus_numerique.square_games.engine.connectfour.ConnectFourGameFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
@@ -15,18 +15,17 @@ import java.util.Locale;
 import java.util.UUID;
 
 @Component
-public class TicTacToePlugin implements GamePlugin {
-
-    private final TicTacToeGameFactory factory;
+public class ConnectFourPlugin implements GamePlugin {
+    private final ConnectFourGameFactory factory;
     private final int defaultPlayerCount;
     private final int defaultBoardSize;
     private final MessageSource messageSource;
 
-    public TicTacToePlugin(TicTacToeGameFactory ticTacToeGameFactory,
-                           @Value("${game.tictactoe.default-player-count}") int defaultPlayerCount,
-                           @Value("${game.tictactoe.default-board-size}") int defaultBoardSize,
-                           MessageSource messageSource) {
-        this.factory = ticTacToeGameFactory;
+    public ConnectFourPlugin(ConnectFourGameFactory factory,
+                             @Value("${game.connect-four.default-player-count}") int defaultPlayerCount,
+                             @Value("${game.connect-four.default-board-size}") int defaultBoardSize,
+                             MessageSource messageSource) {
+        this.factory = factory;
         this.defaultPlayerCount = defaultPlayerCount;
         this.defaultBoardSize = defaultBoardSize;
         this.messageSource = messageSource;
@@ -50,8 +49,8 @@ public class TicTacToePlugin implements GamePlugin {
     @Override
     public String getName(Locale locale) {
         return messageSource.getMessage(
-                "game.tictactoe.name",
-                new Object[]{"Guillaume", "Géraud"},
+                "game.connect-four.name",
+                null,
                 locale
         );
     }
