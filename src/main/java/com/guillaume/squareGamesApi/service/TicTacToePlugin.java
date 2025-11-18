@@ -25,17 +25,20 @@ public class TicTacToePlugin implements GamePlugin {
     public TicTacToePlugin(TicTacToeGameFactory ticTacToeGameFactory,
                            @Value("${game.tictactoe.default-player-count}") int defaultPlayerCount,
                            @Value("${game.tictactoe.default-board-size}") int defaultBoardSize,
-                           MessageSource messageSource, MessageSource messageSource1) {
+                           MessageSource messageSource) {
         this.ticTacToeGameFactory = ticTacToeGameFactory;
         this.defaultPlayerCount = defaultPlayerCount;
         this.defaultBoardSize = defaultBoardSize;
-        this.messageSource = messageSource1;
+        this.messageSource = messageSource;
     }
 
     @Override
     public Game createGame(GameCreationParams params) {
+
         int playerCount = params.playerCount() == 0 ? defaultPlayerCount : params.playerCount();
+
         int boardSize = params.boardSize() == 0 ? defaultBoardSize : params.boardSize();
+
         return ticTacToeGameFactory.createGame(playerCount, boardSize);
     }
 
@@ -46,8 +49,12 @@ public class TicTacToePlugin implements GamePlugin {
 
     @Override
     public String getName(Locale language) {
-        return "";
-//        return messageSource.getMessage();
+        return messageSource.getMessage(
+                "game.tictactoe.name",
+                new Object[]{"Guillaume", "Géraud"},
+                "game.tictactoe.name",
+                language
+        );
     }
 
     @Override
