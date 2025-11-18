@@ -20,7 +20,7 @@ public class GameServiceImpl implements GameService {
         games = new ArrayList<>();
 
         for (GamePlugin plugin : plugins)
-            pluginMap.put(plugin.getGamePluginId(), plugin);
+            pluginMap.put(plugin.getGameIdentifier(), plugin);
     }
 
     @PostConstruct
@@ -37,7 +37,7 @@ public class GameServiceImpl implements GameService {
     public Collection<String> getGameIdentifiers() {
         Collection<String> gameIdentifiers = new ArrayList<>();
         for (GamePlugin plugin : plugins)
-            gameIdentifiers.add(plugin.getGamePluginId());
+            gameIdentifiers.add(plugin.getGameIdentifier());
         return gameIdentifiers;
     }
 
@@ -141,5 +141,25 @@ public class GameServiceImpl implements GameService {
     @Override
     public Collection<Game> getGames() {
         return games;
+    }
+
+    @Override
+    public String getGameName(String identifier, Locale locale) {
+        GamePlugin gamePlugin = pluginMap.get(identifier);
+        return gamePlugin.getName(locale);
+    }
+
+    @Override
+    public Map<String, String> getCatalog(Locale locale) {
+        Collection<String> gameIdentifiers = getGameIdentifiers();
+        if (gameIdentifiers.isEmpty())
+            return Map.of();
+
+        Map<String, String> catalog = new HashMap<>();
+
+        for (String identifier : gameIdentifiers)
+            catalog.put(identifier, getGameName(identifier, locale));
+
+        return catalog;
     }
 }

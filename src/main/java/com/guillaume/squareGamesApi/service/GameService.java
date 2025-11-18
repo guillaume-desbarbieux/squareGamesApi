@@ -4,10 +4,7 @@ import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
 import fr.le_campus_numerique.square_games.engine.*;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public interface GameService {
     Collection<String> getGameIdentifiers();
@@ -20,4 +17,6 @@ public interface GameService {
     Set<CellPosition> getAllowedMovesFromBoard(UUID gameID, CellPosition cellPosition);
     void playMove(UUID gameId, GameMoveParam gameMove) throws InvalidPositionException, IllegalArgumentException;
     Collection<Game> getGames();
+    String getGameName(String identifier, Locale locale);
+    Map<String, String> getCatalog(Locale locale);
 }
