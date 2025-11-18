@@ -2,10 +2,7 @@ package com.guillaume.squareGamesApi.service;
 
 import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
-import fr.le_campus_numerique.square_games.engine.CellPosition;
-import fr.le_campus_numerique.square_games.engine.Game;
-import fr.le_campus_numerique.square_games.engine.InvalidPositionException;
-import fr.le_campus_numerique.square_games.engine.Token;
+import fr.le_campus_numerique.square_games.engine.*;
 
 import java.util.Collection;
 import java.util.Map;
@@ -14,7 +11,7 @@ import java.util.UUID;
 
 public interface GameService {
     Collection<String> getGameIdentifiers();
-    UUID createGame(GameCreationParams params) throws IllegalArgumentException;
+    UUID createGame(GameCreationParams params) throws IllegalArgumentException, InconsistentGameDefinitionException;
     Game getGame(UUID gameId);
     Map<CellPosition, Token> getBoardTokens(UUID gameId);
     Collection<Token> getRemainingTokens(UUID gameId);

@@ -10,47 +10,45 @@ import java.util.*;
 
 @Service
 public class GameServiceImpl implements GameService {
-    private final List<GameFactory> factories;
-    private final Map<String, GameFactory> factoryMap;
+    private final List<GamePlugin> plugins;
+    private final Map<String, GamePlugin> pluginMap;
     private final Collection<Game> games;
 
-    public GameServiceImpl(List<GameFactory> factories) {
-        this.factories = factories;
-        factoryMap = new HashMap<>();
+    public GameServiceImpl(List<GamePlugin> plugins) {
+        this.plugins = plugins;
+        pluginMap = new HashMap<>();
         games = new ArrayList<>();
 
-        for (GameFactory factory : factories)
-            factoryMap.put(factory.getGameFactoryId(), factory);
+        for (GamePlugin plugin : plugins)
+            pluginMap.put(plugin.getGamePluginId(), plugin);
     }
 
     @PostConstruct
     public void initForTest() throws InconsistentGameDefinitionException {
-        Game testGame = factories.getFirst().createGameWithIds(
+        games.add(plugins.getFirst().createGameWithIds(
                 UUID.fromString("fab835a0-5b1f-453e-a113-0a80d89b0803"),
                 3,
                 List.of(UUID.fromString("6f557748-aee4-417a-bf5e-7972874d060a"), UUID.fromString("0d1fafd2-4ef5-4635-9ad2-13d2545810e6")),
                 List.of(),
-                List.of());
-
-        games.add(testGame);
+                List.of()));
     }
 
     @Override
     public Collection<String> getGameIdentifiers() {
         Collection<String> gameIdentifiers = new ArrayList<>();
-        for (GameFactory factory : factories)
-            gameIdentifiers.add(factory.getGameFactoryId());
+        for (GamePlugin plugin : plugins)
+            gameIdentifiers.add(plugin.getGamePluginId());
         return gameIdentifiers;
     }
 
     @Override
-    public UUID createGame(GameCreationParams params) throws IllegalArgumentException {
-        GameFactory factory = factoryMap.get(params.identifier());
+    public UUID createGame(GameCreationParams params) throws IllegalArgumentException, InconsistentGameDefinitionException {
+        GamePlugin plugin = pluginMap.get(params.identifier());
 
-        if (factory == null)
+        if (plugin == null)
             throw new IllegalArgumentException("Unknown game Identifier : " + params.identifier());
 
-        Game game = factory.createGame(params.playerCount(), params.boardSize());
+        Game game = plugin.createGame(params);
         games.add(game);
         return game.getId();
     }
