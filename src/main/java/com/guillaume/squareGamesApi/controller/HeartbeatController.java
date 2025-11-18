@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.guillaume.squareGamesApi.model.SensorModel;
 import com.guillaume.squareGamesApi.service.HeartBeatService;
 import com.guillaume.squareGamesApi.service.SensorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
