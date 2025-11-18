@@ -52,7 +52,6 @@ public class TicTacToePlugin implements GamePlugin {
         return messageSource.getMessage(
                 "game.tictactoe.name",
                 new Object[]{"Guillaume", "Géraud"},
-                "game.tictactoe.name",
                 language
         );
     }
