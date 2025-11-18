@@ -1,5 +1,7 @@
 package com.guillaume.squareGamesApi.controller;
 
+import com.guillaume.squareGamesApi.dao.GameDTO;
+import com.guillaume.squareGamesApi.dao.TokenDTO;
 import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
 import com.guillaume.squareGamesApi.service.GameService;
@@ -34,15 +36,19 @@ public class GameController {
     }
 
     @GetMapping("/UUID")
-    public ResponseEntity<Collection<Game>> getGamesUUID() {
-        Collection<Game> gameUUIDs = gameService.getGames();
+    public ResponseEntity<Collection<UUID>> getGamesUUID() {
+        Collection<Game> games = gameService.getGames();
 
-        if (gameUUIDs.isEmpty())
+        if (games.isEmpty())
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
-                    .body(gameUUIDs);
-        else
-            return ResponseEntity.ok(gameUUIDs);
+                    .build();
+
+        Collection<UUID> gameUUIDs = new ArrayList<>();
+
+        for (Game game : games)
+            gameUUIDs.add(game.getId());
+        return ResponseEntity.ok(gameUUIDs);
     }
 
     @PostMapping
@@ -70,31 +76,66 @@ public class GameController {
     }
 
     @GetMapping("/{gameId}")
-    public ResponseEntity<Object> getGame(@PathVariable UUID gameId) {
+    public ResponseEntity<GameDTO> getGame(@PathVariable UUID gameId) {
 
         Game game = gameService.getGame(gameId);
 
         if (game == null)
             return ResponseEntity.notFound().build();
         else
-            return ResponseEntity.ok(game);
+            return ResponseEntity.ok(toDTO(game));
     }
 
+    private GameDTO toDTO(Game game) {
+        return new GameDTO(
+                game.getId(),
+                game.getBoardSize(),
+                game.getStatus(),
+                toDTO(game.getBoard()),
+                toDTO(game.getRemainingTokens()),
+                toDTO(game.getRemovedTokens()),
+                game.getPlayerIds()
+        );
+    }
+
+    private Map<CellPosition, TokenDTO> toDTO(Map<CellPosition, Token> board) {
+        Map<CellPosition, TokenDTO> boardDTO = new HashMap<>();
+        for (Token token : board.values())
+            boardDTO.put(token.getPosition(), toDTO(token));
+        return boardDTO;
+    }
+
+    private TokenDTO toDTO(Token token) {
+        return new TokenDTO(
+                token.getOwnerId(),
+                token.getName(),
+                token.getPosition()
+        );
+    }
+
+    private Collection<TokenDTO> toDTO(Collection<Token> tokens) {
+        Collection<TokenDTO> dto = new ArrayList<>();
+        for (Token token : tokens)
+            dto.add(toDTO(token));
+        return dto;
+    }
+
+
     @GetMapping("/{gameId}/tokens/from-board")
-    public ResponseEntity<Map<CellPosition, Token>> getBoardTokens(@PathVariable UUID gameId) {
+    public ResponseEntity<Map<CellPosition, TokenDTO>> getBoardTokens(@PathVariable UUID gameId) {
 
         if (gameService.getGame(gameId) == null)
             return ResponseEntity.notFound().build();
 
         Map<CellPosition, Token> tokens = gameService.getBoardTokens(gameId);
         if (tokens.isEmpty())
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(tokens);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         else
-            return ResponseEntity.ok(gameService.getBoardTokens(gameId));
+            return ResponseEntity.ok(toDTO(tokens));
     }
 
     @GetMapping("/{gameId}/tokens/from-remaining")
-    public ResponseEntity<Collection<Token>> getRemainingTokens(@PathVariable UUID gameId) {
+    public ResponseEntity<Collection<TokenDTO>> getRemainingTokens(@PathVariable UUID gameId) {
 
         if (gameService.getGame(gameId) == null)
             return ResponseEntity.notFound().build();
@@ -103,11 +144,11 @@ public class GameController {
         if (tokens.isEmpty())
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         else
-            return ResponseEntity.ok(gameService.getRemainingTokens(gameId));
+            return ResponseEntity.ok(toDTO(tokens));
     }
 
     @GetMapping("/{gameId}/tokens/from-removed")
-    public ResponseEntity<Collection<Token>> getRemovedTokens(@PathVariable UUID gameId) {
+    public ResponseEntity<Collection<TokenDTO>> getRemovedTokens(@PathVariable UUID gameId) {
 
         if (gameService.getGame(gameId) == null)
             return ResponseEntity.notFound().build();
@@ -116,7 +157,7 @@ public class GameController {
         if (tokens.isEmpty())
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         else
-            return ResponseEntity.ok(tokens);
+            return ResponseEntity.ok(toDTO(tokens));
     }
 
     @GetMapping("/{gameId}/allowed-moves/from-remaining")
