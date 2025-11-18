@@ -22,5 +22,4 @@ public class Configuration {
     TaquinGameFactory taquinGameFactory() {
         return new TaquinGameFactory();
     }
-
 }
