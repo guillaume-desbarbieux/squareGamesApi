@@ -36,6 +36,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public Collection<String> getGameIdentifiers() {
         Collection<String> gameIdentifiers = new ArrayList<>();
+        System.out.println(plugins.getFirst().getName(Locale.FRENCH));
         for (GamePlugin plugin : plugins)
             gameIdentifiers.add(plugin.getGamePluginId());
         return gameIdentifiers;
