@@ -57,7 +57,7 @@ public class TicTacToePlugin implements GamePlugin {
     }
 
     @Override
-    public String getGamePluginId() {
+    public String getGameIdentifier() {
         return factory.getGameFactoryId();
     }
 }

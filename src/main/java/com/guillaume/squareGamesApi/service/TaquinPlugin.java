@@ -57,7 +57,7 @@ public class TaquinPlugin implements GamePlugin {
     }
 
     @Override
-    public String getGamePluginId() {
+    public String getGameIdentifier() {
         return factory.getGameFactoryId();
     }
 }
