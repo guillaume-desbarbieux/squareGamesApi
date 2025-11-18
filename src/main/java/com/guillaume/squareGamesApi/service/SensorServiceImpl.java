@@ -2,7 +2,6 @@ package com.guillaume.squareGamesApi.service;
 
 import com.guillaume.squareGamesApi.dao.SensorDao;
 import com.guillaume.squareGamesApi.model.SensorModel;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
