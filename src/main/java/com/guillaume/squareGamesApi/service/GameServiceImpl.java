@@ -43,7 +43,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public UUID createGame(GameCreationParams params) throws IllegalArgumentException, InconsistentGameDefinitionException {
+    public UUID createGame(GameCreationParams params) throws IllegalArgumentException {
         GamePlugin plugin = pluginMap.get(params.identifier());
 
         if (plugin == null)
