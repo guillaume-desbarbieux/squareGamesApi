@@ -19,5 +19,5 @@ public interface GamePlugin {
             Collection<TokenPosition<UUID>> boardTokens,
             Collection<TokenPosition<UUID>> removedTokens) throws InconsistentGameDefinitionException;
     String getName(Locale locale);
-    String getGamePluginId();
+    String getGameIdentifier();
 }
