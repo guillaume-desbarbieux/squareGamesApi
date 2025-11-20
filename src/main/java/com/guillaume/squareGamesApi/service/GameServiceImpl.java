@@ -26,10 +26,13 @@ public class GameServiceImpl implements GameService {
 
     @PostConstruct
     public void initForTest() throws InconsistentGameDefinitionException {
-        Game gameForTest = pluginMap.get("tictactoe").createGameWithIds(
+        GamePlugin plugin = pluginMap.get("tictactoe");
+
+        Game gameForTest = plugin.createGameWithIds(
                 UUID.fromString("fab835a0-5b1f-453e-a113-0a80d89b0803"),
                 3,
-                List.of(UUID.fromString("6f557748-aee4-417a-bf5e-7972874d060a"), UUID.fromString("0d1fafd2-4ef5-4635-9ad2-13d2545810e6")),
+                List.of(UUID.fromString("6f557748-aee4-417a-bf5e-7972874d060a"),
+                        UUID.fromString("0d1fafd2-4ef5-4635-9ad2-13d2545810e6")),
                 List.of(),
                 List.of());
 
@@ -57,7 +60,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Game getGame(UUID gameId) {
-       return gameDAO.getGameById(gameId);
+        return gameDAO.getGameById(gameId);
     }
 
     @Override
