@@ -1,5 +1,6 @@
 package com.guillaume.squareGamesApi.service;
 
+import com.guillaume.squareGamesApi.dao.GameDAO;
 import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
 import fr.le_campus_numerique.square_games.engine.*;
@@ -12,12 +13,12 @@ import java.util.*;
 public class GameServiceImpl implements GameService {
     private final List<GamePlugin> plugins;
     private final Map<String, GamePlugin> pluginMap;
-    private final Collection<Game> games;
+    private final GameDAO gameDAO;
 
-    public GameServiceImpl(List<GamePlugin> plugins) {
+    public GameServiceImpl(List<GamePlugin> plugins, GameDAO gameDAO) {
+        this.gameDAO = gameDAO;
         this.plugins = plugins;
         pluginMap = new HashMap<>();
-        games = new ArrayList<>();
 
         for (GamePlugin plugin : plugins)
             pluginMap.put(plugin.getGameIdentifier(), plugin);
@@ -25,7 +26,7 @@ public class GameServiceImpl implements GameService {
 
     @PostConstruct
     public void initForTest() throws InconsistentGameDefinitionException {
-        games.add(pluginMap.get("tictactoe").createGameWithIds(
+        gameDAO.addGame(pluginMap.get("tictactoe").createGameWithIds(
                 UUID.fromString("fab835a0-5b1f-453e-a113-0a80d89b0803"),
                 3,
                 List.of(UUID.fromString("6f557748-aee4-417a-bf5e-7972874d060a"), UUID.fromString("0d1fafd2-4ef5-4635-9ad2-13d2545810e6")),
@@ -47,19 +48,14 @@ public class GameServiceImpl implements GameService {
 
         if (plugin == null)
             throw new IllegalArgumentException("Unknown game Identifier : " + params.identifier());
-
         Game game = plugin.createGame(params);
-        games.add(game);
-        return game.getId();
+        return gameDAO.addGame(game);
     }
 
 
     @Override
     public Game getGame(UUID gameId) {
-        for (Game game : games)
-            if (game.getId().equals(gameId))
-                return game;
-        return null;
+       return gameDAO.getGameById(gameId);
     }
 
     @Override
@@ -140,7 +136,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Collection<Game> getGames() {
-        return games;
+        return gameDAO.getGames();
     }
 
     @Override
@@ -165,7 +161,6 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Boolean deleteGame(UUID gameId) {
-        Game game = getGame(gameId);
-        return games.remove(game);
+        return gameDAO.deleteGame(gameId);
     }
 }

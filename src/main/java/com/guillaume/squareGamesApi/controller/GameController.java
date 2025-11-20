@@ -211,7 +211,7 @@ public class GameController {
     }
 
     @DeleteMapping("/{gameId}")
-    public ResponseEntity<String> deleteGame(@PathVariable UUID gameId){
+    public ResponseEntity<String> deleteGame(@PathVariable UUID gameId) {
         Game game = gameService.getGame(gameId);
 
         if (game == null)
@@ -224,5 +224,4 @@ public class GameController {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
     }
 
-    }
 }

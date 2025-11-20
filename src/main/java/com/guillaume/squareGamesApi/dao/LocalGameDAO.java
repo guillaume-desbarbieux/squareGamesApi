@@ -1,0 +1,54 @@
+package com.guillaume.squareGamesApi.dao;
+
+import fr.le_campus_numerique.square_games.engine.Game;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+@Service
+public class LocalGameDAO implements GameDAO {
+
+    private final Map<UUID, Game> gameMap;
+
+    public LocalGameDAO() {
+        this.gameMap = new HashMap<>();
+    }
+
+    @Override
+    public boolean existId(UUID gameId) {
+        return gameMap.get(gameId) == null;
+    }
+
+    @Override
+    public Collection<Game> getGames() {
+        return gameMap.values();
+    }
+
+    @Override
+    public Game getGameById(UUID gameId) {
+        return gameMap.get(gameId);
+    }
+
+    @Override
+    public UUID addGame(Game game) {
+        if (game == null || game.getId() == null)
+            throw new SquareGamesDAOException("Can't save null game");
+
+        if (gameMap.put(game.getId(), game) == null)
+            throw new SquareGamesDAOException("Problem with Saving Game");
+        else
+            return game.getId();
+    }
+
+    @Override
+    public boolean updateGame(Game game) {
+        if (game == null)
+            throw new SquareGamesDAOException("Can't update null game");
+        return gameMap.replace(game.getId(), game) != null;
+    }
+
+    @Override
+    public boolean deleteGame(UUID gameId) {
+        return gameMap.remove(gameId) != null;
+    }
+}
