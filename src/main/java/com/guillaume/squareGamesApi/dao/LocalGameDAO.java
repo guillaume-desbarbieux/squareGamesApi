@@ -1,11 +1,14 @@
 package com.guillaume.squareGamesApi.dao;
 
 import fr.le_campus_numerique.square_games.engine.Game;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-@Service
+
+@Repository
+@Primary
 public class LocalGameDAO implements GameDAO {
 
     private final Map<UUID, Game> gameMap;
@@ -35,9 +38,9 @@ public class LocalGameDAO implements GameDAO {
             throw new SquareGamesDAOException("Can't save null game");
 
         if (gameMap.put(game.getId(), game) == null)
-            throw new SquareGamesDAOException("Problem with Saving Game");
-        else
             return game.getId();
+        else
+            throw new SquareGamesDAOException("Problem with Saving Game");
     }
 
     @Override
@@ -50,5 +53,10 @@ public class LocalGameDAO implements GameDAO {
     @Override
     public boolean deleteGame(UUID gameId) {
         return gameMap.remove(gameId) != null;
+    }
+
+    @Override
+    public Collection<UUID> getGameUUIDs() {
+        return gameMap.keySet();
     }
 }
