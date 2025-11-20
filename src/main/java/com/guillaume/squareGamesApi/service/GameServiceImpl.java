@@ -162,4 +162,10 @@ public class GameServiceImpl implements GameService {
 
         return catalog;
     }
+
+    @Override
+    public Boolean deleteGame(UUID gameId) {
+        Game game = getGame(gameId);
+        return games.remove(game);
+    }
 }

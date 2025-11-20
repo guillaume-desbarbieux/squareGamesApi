@@ -19,4 +19,6 @@ public interface GameService {
     Collection<Game> getGames();
     String getGameName(String identifier, Locale locale);
     Map<String, String> getCatalog(Locale locale);
+
+    Boolean deleteGame(UUID gameId);
 }

@@ -1,7 +1,5 @@
 package com.guillaume.squareGamesApi.controller;
 
-import com.guillaume.squareGamesApi.dao.GameDTO;
-import com.guillaume.squareGamesApi.dao.TokenDTO;
 import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
 import com.guillaume.squareGamesApi.service.GameService;
@@ -210,5 +208,21 @@ public class GameController {
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(e.getMessage());
         }
+    }
+
+    @DeleteMapping("/{gameId}")
+    public ResponseEntity<String> deleteGame(@PathVariable UUID gameId){
+        Game game = gameService.getGame(gameId);
+
+        if (game == null)
+            return ResponseEntity.notFound().build();
+
+        Boolean deleted = gameService.deleteGame(gameId);
+        if (deleted)
+            return ResponseEntity.ok("Successfully deleted.");
+        else
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
+    }
+
     }
 }
