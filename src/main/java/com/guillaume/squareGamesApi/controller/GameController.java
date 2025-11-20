@@ -38,18 +38,14 @@ public class GameController {
     }
 
     @GetMapping("/UUID")
-    public ResponseEntity<Collection<UUID>> getGamesUUID() {
-        Collection<Game> games = gameService.getGames();
+    public ResponseEntity<Collection<UUID>> getGameUUIDs() {
+        Collection<UUID> gameUUIDs = gameService.getGameUUIDs();
 
-        if (games.isEmpty())
+        if (gameUUIDs.isEmpty())
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
                     .build();
 
-        Collection<UUID> gameUUIDs = new ArrayList<>();
-
-        for (Game game : games)
-            gameUUIDs.add(game.getId());
         return ResponseEntity.ok(gameUUIDs);
     }
 

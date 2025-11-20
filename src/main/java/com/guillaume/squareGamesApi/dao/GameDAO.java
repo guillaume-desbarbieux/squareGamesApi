@@ -17,4 +17,6 @@ public interface GameDAO {
     boolean updateGame(Game game) throws SquareGamesDAOException;
 
     boolean deleteGame(UUID gameId) throws SquareGamesDAOException;
+
+    Collection<UUID> getGameUUIDs();
 }

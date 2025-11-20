@@ -21,4 +21,6 @@ public interface GameService {
     Map<String, String> getCatalog(Locale locale);
 
     Boolean deleteGame(UUID gameId);
+
+    Collection<UUID> getGameUUIDs();
 }
