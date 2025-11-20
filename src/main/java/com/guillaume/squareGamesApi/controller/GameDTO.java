@@ -1,4 +1,4 @@
-package com.guillaume.squareGamesApi.dao;
+package com.guillaume.squareGamesApi.controller;
 
 import fr.le_campus_numerique.square_games.engine.CellPosition;
 import fr.le_campus_numerique.square_games.engine.GameStatus;
