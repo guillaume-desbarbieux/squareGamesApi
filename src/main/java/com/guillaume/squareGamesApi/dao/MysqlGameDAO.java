@@ -1,12 +1,9 @@
 package com.guillaume.squareGamesApi.dao;
 
-import com.guillaume.squareGamesApi.service.ConnectFourPlugin;
 import com.guillaume.squareGamesApi.service.GamePlugin;
-import com.guillaume.squareGamesApi.service.TicTacToePlugin;
 import fr.le_campus_numerique.square_games.engine.Game;
 import fr.le_campus_numerique.square_games.engine.InconsistentGameDefinitionException;
 import fr.le_campus_numerique.square_games.engine.TokenPosition;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Repository;
