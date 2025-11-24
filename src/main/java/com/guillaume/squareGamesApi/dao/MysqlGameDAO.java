@@ -85,7 +85,7 @@ public class MysqlGameDAO implements GameDAO {
         try {
             return plugin.createGameWithIds(gameId, boardSize, players, boardTokens, removedTokens);
         } catch (InconsistentGameDefinitionException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error when creating : " + e.getMessage());
             return null;
         }
     }
@@ -99,7 +99,7 @@ public class MysqlGameDAO implements GameDAO {
         String gameId = game.getId().toString();
         try {
 
-            jdbc.update("INSERT INTO game VALUES (?, ?, ?)",
+            jdbc.update("INSERT INTO game (uuid, boardSize, gameType) VALUES (?, ?, ?)",
                     gameId,
                     game.getBoardSize(),
                     game.getFactoryId());
@@ -107,7 +107,6 @@ public class MysqlGameDAO implements GameDAO {
                 jdbc.update("INSERT INTO playerGame VALUES (?,?)",
                         playerId.toString(),
                         gameId);
-                System.out.println("players ajoutés : " + playerId.toString() + " : " + gameId);
             }
             for (Token token : game.getBoard().values())
                 jdbc.update("INSERT INTO boardToken (gameUuid, playerUuid, name, x, y) VALUES (?, ?, ?, ?, ?)",
@@ -127,7 +126,7 @@ public class MysqlGameDAO implements GameDAO {
             return game.getId();
 
         } catch (DataAccessException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error when saving : " + e.getMessage());
             return null;
         }
     }
@@ -141,7 +140,7 @@ public class MysqlGameDAO implements GameDAO {
             else
                 return false;
         } catch (SquareGamesDAOException | DataAccessException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error when updating : " + e.getMessage());
             return false;
         }
     }
@@ -149,13 +148,14 @@ public class MysqlGameDAO implements GameDAO {
     @Override
     public boolean deleteGame(UUID gameId) {
         try {
-            jdbc.update("DELETE FROM game where uuid=?", gameId);
-            jdbc.update("DELETE FROM playerGame where gameUuid=?", gameId);
-            jdbc.update("DELETE FROM boardToken where gameUuid=?", gameId);
-            jdbc.update("DELETE FROM removedToken where gameUuid=?", gameId);
+            jdbc.update("DELETE FROM game where uuid=?", gameId.toString());
+            jdbc.update("DELETE FROM playerGame where gameUuid=?", gameId.toString());
+            jdbc.update("DELETE FROM boardToken where gameUuid=?", gameId.toString());
+            jdbc.update("DELETE FROM removedToken where gameUuid=?", gameId.toString());
+            System.out.println("deleted : " + gameId);
             return true;
         } catch (DataAccessException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error when Deleting : " + e.getMessage());
             return false;
         }
     }
