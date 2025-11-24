@@ -11,17 +11,20 @@ import java.util.*;
 
 @Service
 public class GameServiceImpl implements GameService {
-    private final List<GamePlugin> plugins;
     private final Map<String, GamePlugin> pluginMap;
+    private final Collection<String> gameIdentifiers;
     private final GameDAO gameDAO;
 
     public GameServiceImpl(List<GamePlugin> plugins, GameDAO gameDAO) {
         this.gameDAO = gameDAO;
-        this.plugins = plugins;
-        pluginMap = new HashMap<>();
 
-        for (GamePlugin plugin : plugins)
+        pluginMap = new HashMap<>();
+        gameIdentifiers = new ArrayList<>();
+
+        for (GamePlugin plugin : plugins) {
+            gameIdentifiers.add(plugin.getGameIdentifier());
             pluginMap.put(plugin.getGameIdentifier(), plugin);
+        }
     }
 
     @PostConstruct
@@ -41,9 +44,6 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Collection<String> getGameIdentifiers() {
-        Collection<String> gameIdentifiers = new ArrayList<>();
-        for (GamePlugin plugin : plugins)
-            gameIdentifiers.add(plugin.getGameIdentifier());
         return gameIdentifiers;
     }
 
