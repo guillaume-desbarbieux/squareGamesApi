@@ -38,7 +38,6 @@ public class TaquinPlugin implements GamePlugin {
         int playerCount = params.playerCount() == 0 ? defaultPlayerCount : params.playerCount();
 
         int boardSize = params.boardSize() == 0 ? defaultBoardSize : params.boardSize();
-
         return factory.createGame(playerCount, boardSize);
     }
 

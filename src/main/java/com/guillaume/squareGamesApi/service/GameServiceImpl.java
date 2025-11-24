@@ -4,7 +4,6 @@ import com.guillaume.squareGamesApi.dao.GameDAO;
 import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
 import fr.le_campus_numerique.square_games.engine.*;
-import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

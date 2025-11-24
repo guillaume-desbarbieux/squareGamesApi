@@ -122,9 +122,9 @@ public class GameController {
     @GetMapping("/{gameId}/tokens/from-board")
     public ResponseEntity<Map<CellPosition, TokenDTO>> getBoardTokens(@PathVariable UUID gameId) {
 
-        if (gameService.getGame(gameId) == null)
+        if (gameService.getGame(gameId) == null) {
             return ResponseEntity.notFound().build();
-
+        }
         Map<CellPosition, Token> tokens = gameService.getBoardTokens(gameId);
         if (tokens.isEmpty())
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
