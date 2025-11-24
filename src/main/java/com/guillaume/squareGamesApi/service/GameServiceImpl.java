@@ -26,7 +26,7 @@ public class GameServiceImpl implements GameService {
             pluginMap.put(plugin.getGameIdentifier(), plugin);
         }
     }
-
+/*
     @PostConstruct
     public void initForTest() throws InconsistentGameDefinitionException {
         GamePlugin plugin = pluginMap.get("tictactoe");
@@ -41,6 +41,8 @@ public class GameServiceImpl implements GameService {
 
         gameDAO.addGame(gameForTest);
     }
+
+ */
 
     @Override
     public Collection<String> getGameIdentifiers() {
@@ -131,6 +133,7 @@ public class GameServiceImpl implements GameService {
             for (Token token : tokens)
                 if (Objects.equals(token.getName(), gameMove.name())) {
                     token.moveTo(gameMove.toCell());
+                    gameDAO.updateGame(game);
                     return;
                 }
             throw new IllegalArgumentException("No tokens remaining with this name");

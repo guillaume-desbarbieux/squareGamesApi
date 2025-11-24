@@ -3,23 +3,23 @@ package com.guillaume.squareGamesApi.dao;
 import com.guillaume.squareGamesApi.service.GamePlugin;
 import fr.le_campus_numerique.square_games.engine.Game;
 import fr.le_campus_numerique.square_games.engine.InconsistentGameDefinitionException;
+import fr.le_campus_numerique.square_games.engine.Token;
 import fr.le_campus_numerique.square_games.engine.TokenPosition;
+import org.springframework.context.annotation.Primary;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
 
 @Repository
+@Primary
 public class MysqlGameDAO implements GameDAO {
-    private final Map<UUID, Game> gameMap;
     private final JdbcTemplate jdbc;
-
     private final Map<String, GamePlugin> pluginMap;
 
     public MysqlGameDAO(JdbcTemplate jdbc, List<GamePlugin> plugins) {
-        this.gameMap = new HashMap<>();
         this.jdbc = jdbc;
 
         pluginMap = new HashMap<>();
@@ -58,7 +58,7 @@ public class MysqlGameDAO implements GameDAO {
             return null;
 
         List<UUID> players = jdbc.query(
-                "SELECT UUID FROM player WHERE gameUuid = ?",
+                "SELECT UUID FROM playerGame WHERE gameUuid = ?",
                 (rs, rowNum) -> UUID.fromString(rs.getString("uuid")),
                 gameId.toString());
 
@@ -92,25 +92,72 @@ public class MysqlGameDAO implements GameDAO {
 
     @Override
     public UUID addGame(Game game) {
+
         if (game == null || game.getId() == null)
             throw new SquareGamesDAOException("Can't save null game");
 
-        if (gameMap.put(game.getId(), game) == null)
+        String gameId = game.getId().toString();
+        try {
+
+            jdbc.update("INSERT INTO game VALUES (?, ?, ?)",
+                    gameId,
+                    game.getBoardSize(),
+                    game.getFactoryId());
+            for (UUID playerId : game.getPlayerIds()) {
+                jdbc.update("INSERT INTO playerGame VALUES (?,?)",
+                        playerId.toString(),
+                        gameId);
+                System.out.println("players ajoutés : " + playerId.toString() + " : " + gameId);
+            }
+            for (Token token : game.getBoard().values())
+                jdbc.update("INSERT INTO boardToken (gameUuid, playerUuid, name, x, y) VALUES (?, ?, ?, ?, ?)",
+                        gameId,
+                        token.getOwnerId().orElseThrow().toString(),
+                        token.getName(),
+                        token.getPosition().x(),
+                        token.getPosition().y());
+            for (Token token : game.getRemovedTokens())
+                jdbc.update("INSERT INTO removedToken (gameUuid, playerUuid, name, x, y) VALUES (?, ?, ?, ?, ?)",
+                        gameId,
+                        token.getOwnerId().orElseThrow().toString(),
+                        token.getName(),
+                        token.getPosition().x(),
+                        token.getPosition().y());
+
             return game.getId();
-        else
-            throw new SquareGamesDAOException("Problem with Saving Game");
+
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
+
 
     @Override
     public boolean updateGame(Game game) {
-        if (game == null)
-            throw new SquareGamesDAOException("Can't update null game");
-        return gameMap.replace(game.getId(), game) != null;
+        try {
+            if (deleteGame(game.getId()))
+                return addGame(game) != null;
+            else
+                return false;
+        } catch (SquareGamesDAOException | DataAccessException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 
     @Override
     public boolean deleteGame(UUID gameId) {
-        return gameMap.remove(gameId) != null;
+        try {
+            jdbc.update("DELETE FROM game where uuid=?", gameId);
+            jdbc.update("DELETE FROM playerGame where gameUuid=?", gameId);
+            jdbc.update("DELETE FROM boardToken where gameUuid=?", gameId);
+            jdbc.update("DELETE FROM removedToken where gameUuid=?", gameId);
+            return true;
+        } catch (DataAccessException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 
     @Override
@@ -120,24 +167,4 @@ public class MysqlGameDAO implements GameDAO {
                 (rs, rowNum) -> UUID.fromString(rs.getString("uuid"))
         );
     }
-
-    public static void main(String[] args) {
-        // Configuration de la DataSource
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3307/SquareGames");
-        dataSource.setUsername("user");
-        dataSource.setPassword("user");
-
-
-
-        // Création du JdbcTemplate avec la DataSource
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-        // Création du DAO
-        MysqlGameDAO dao = new MysqlGameDAO(jdbcTemplate);
-        dao.getGameById(UUID.fromString("fab835a0-5b1f-453e-a113-0a80d89b0803"));
-    }
 }
-
-

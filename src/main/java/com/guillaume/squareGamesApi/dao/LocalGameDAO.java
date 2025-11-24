@@ -1,14 +1,12 @@
 package com.guillaume.squareGamesApi.dao;
 
 import fr.le_campus_numerique.square_games.engine.Game;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
 
 @Repository
-@Primary
 public class LocalGameDAO implements GameDAO {
 
     private final Map<UUID, Game> gameMap;
