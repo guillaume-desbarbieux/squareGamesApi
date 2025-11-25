@@ -40,7 +40,7 @@ public class JPAGameDAO implements GameDAO {
 
     @Override
     public boolean existId(UUID gameId) {
-        return gameRepository.existsByUuid(gameId);
+        return gameRepository.existsByUuid(gameId.toString());
     }
 
     @Override
@@ -53,25 +53,25 @@ public class JPAGameDAO implements GameDAO {
 
     @Override
     public Game getGameById(UUID gameId) throws SquareGamesDAOException {
-        GameModel gameModel = gameRepository.findByUuid(gameId);
+        GameModel gameModel = gameRepository.findByUuid(gameId.toString());
         if (gameModel == null)
             return null;
 
-        List<UUID> players = playerGameRepository.findPlayerUuidByGameUuid(gameId);
+        List<UUID> players = playerGameRepository.findPlayerUuidByGameUuid(gameId.toString());
 
         Collection<TokenPosition<UUID>> boardTokens = new ArrayList<>();
-        for (BoardTokenModel boardTokenModel : boardTokenRepository.findByGameUUID(gameId))
+        for (BoardTokenModel boardTokenModel : boardTokenRepository.findByGameUUID(gameId.toString()))
             boardTokens.add(new TokenPosition<>(
-                    boardTokenModel.getPlayerUUID(),
+                    UUID.fromString(boardTokenModel.getPlayerUUID()),
                     boardTokenModel.getName(),
                     boardTokenModel.getX(),
                     boardTokenModel.getY()));
 
 
         Collection<TokenPosition<UUID>> removedTokens = new ArrayList<>();
-        for (RemovedTokenModel removedTokenModel : removedTokenRepository.findByGameUUID(gameId))
+        for (RemovedTokenModel removedTokenModel : removedTokenRepository.findByGameUUID(gameId.toString()))
                 removedTokens.add(new TokenPosition<>(
-                        removedTokenModel.getPlayerUUID(),
+                        UUID.fromString(removedTokenModel.getPlayerUUID()),
                         removedTokenModel.getName(),
                         removedTokenModel.getX(),
                         removedTokenModel.getY()));
@@ -80,7 +80,7 @@ public class JPAGameDAO implements GameDAO {
 
         try {
             return plugin.createGameWithIds(
-                    gameModel.getUuid(),
+                    UUID.fromString(gameModel.getUuid()),
                     gameModel.getBoardSize(),
                     players,
                     boardTokens,
@@ -99,20 +99,20 @@ public class JPAGameDAO implements GameDAO {
         GameModel gameModel = new GameModel();
         gameModel.setGameType(game.getFactoryId());
         gameModel.setBoardSize(game.getBoardSize());
-        gameModel.setUuid(game.getId());
+        gameModel.setUuid(game.getId().toString());
         gameRepository.save(gameModel);
 
         for (UUID player : game.getPlayerIds()) {
             PlayerGameModel playerGameModel = new PlayerGameModel();
-            playerGameModel.setPlayerUuid(player);
-            playerGameModel.setGameUuid(game.getId());
+            playerGameModel.setPlayerUuid(player.toString());
+            playerGameModel.setGameUuid(game.getId().toString());
             playerGameRepository.save(playerGameModel);
         }
 
         for (Token token : game.getBoard().values()) {
             BoardTokenModel boardTokenModel = new BoardTokenModel();
-            boardTokenModel.setGameUUID(game.getId());
-            boardTokenModel.setPlayerUUID(token.getOwnerId().orElseThrow());
+            boardTokenModel.setGameUUID(game.getId().toString());
+            boardTokenModel.setPlayerUUID(token.getOwnerId().orElseThrow().toString());
             boardTokenModel.setName(token.getName());
             boardTokenModel.setX(token.getPosition().x());
             boardTokenModel.setY(token.getPosition().y());
@@ -121,8 +121,8 @@ public class JPAGameDAO implements GameDAO {
 
         for (Token token : game.getRemovedTokens()) {
             RemovedTokenModel removedTokenModel = new RemovedTokenModel();
-            removedTokenModel.setGameUUID(game.getId());
-            removedTokenModel.setPlayerUUID(token.getOwnerId().orElseThrow());
+            removedTokenModel.setGameUUID(game.getId().toString());
+            removedTokenModel.setPlayerUUID(token.getOwnerId().orElseThrow().toString());
             removedTokenModel.setName(token.getName());
             removedTokenModel.setX(token.getPosition().x());
             removedTokenModel.setY(token.getPosition().y());
@@ -141,10 +141,10 @@ public class JPAGameDAO implements GameDAO {
     @Transactional
     @Override
     public boolean deleteGame(UUID gameId) throws SquareGamesDAOException {
-        gameRepository.deleteByUuid(gameId);
-        playerGameRepository.deleteAllByGameUuid(gameId);
-        boardTokenRepository.deleteAllByGameUUID(gameId);
-        removedTokenRepository.deleteAllByGameUUID(gameId);
+        gameRepository.deleteByUuid(gameId.toString());
+        playerGameRepository.deleteAllByGameUuid(gameId.toString());
+        boardTokenRepository.deleteAllByGameUUID(gameId.toString());
+        removedTokenRepository.deleteAllByGameUUID(gameId.toString());
         return true;
     }
 
