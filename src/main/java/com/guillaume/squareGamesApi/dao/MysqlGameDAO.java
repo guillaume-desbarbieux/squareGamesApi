@@ -93,6 +93,8 @@ public class MysqlGameDAO implements GameDAO {
     @Override
     public UUID addGame(Game game) {
 
+        System.out.println("adding game in BDD");
+        System.out.println(game.getBoard());
         if (game == null || game.getId() == null)
             throw new SquareGamesDAOException("Can't save null game");
 
@@ -140,7 +142,6 @@ public class MysqlGameDAO implements GameDAO {
             else
                 return false;
         } catch (SquareGamesDAOException | DataAccessException e) {
-            System.out.println("Error when updating : " + e.getMessage());
             return false;
         }
     }
@@ -152,10 +153,8 @@ public class MysqlGameDAO implements GameDAO {
             jdbc.update("DELETE FROM playerGame where gameUuid=?", gameId.toString());
             jdbc.update("DELETE FROM boardToken where gameUuid=?", gameId.toString());
             jdbc.update("DELETE FROM removedToken where gameUuid=?", gameId.toString());
-            System.out.println("deleted : " + gameId);
             return true;
         } catch (DataAccessException e) {
-            System.out.println("Error when Deleting : " + e.getMessage());
             return false;
         }
     }
