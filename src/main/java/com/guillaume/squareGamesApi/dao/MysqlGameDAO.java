@@ -14,7 +14,6 @@ import java.util.*;
 
 
 @Repository
-@Primary
 public class MysqlGameDAO implements GameDAO {
     private final JdbcTemplate jdbc;
     private final Map<String, GamePlugin> pluginMap;
