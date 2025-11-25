@@ -1,8 +1,7 @@
 package com.guillaume.squareGamesApi.service;
 
-import com.guillaume.squareGamesApi.dao.GameDAO;
-import com.guillaume.squareGamesApi.model.GameCreationParams;
-import com.guillaume.squareGamesApi.model.GameMoveParam;
+import com.guillaume.squareGamesApi.dao.*;
+import com.guillaume.squareGamesApi.model.*;
 import fr.le_campus_numerique.square_games.engine.*;
 import org.springframework.stereotype.Service;
 
@@ -123,6 +122,7 @@ public class GameServiceImpl implements GameService {
                 throw new IllegalArgumentException("No token on the board at this position");
             else {
                 token.moveTo(gameMove.toCell());
+                gameDAO.updateGame(game);
                 return;
             }
         }
@@ -132,7 +132,6 @@ public class GameServiceImpl implements GameService {
             for (Token token : tokens)
                 if (Objects.equals(token.getName(), gameMove.name())) {
                     token.moveTo(gameMove.toCell());
-
                     gameDAO.updateGame(game);
                     return;
                 }

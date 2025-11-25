@@ -9,7 +9,6 @@ import fr.le_campus_numerique.square_games.engine.Game;
 import fr.le_campus_numerique.square_games.engine.InconsistentGameDefinitionException;
 import fr.le_campus_numerique.square_games.engine.Token;
 import fr.le_campus_numerique.square_games.engine.TokenPosition;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,19 +21,17 @@ public class JPAGameDAO implements GameDAO {
 
     private final Map<String, GamePlugin> pluginMap;
 
-    @Autowired
-    private GameRepository gameRepository;
+    private final GameRepository gameRepository;
+    private final BoardTokenRepository boardTokenRepository;
+    private final RemovedTokenRepository removedTokenRepository;
+    private final PlayerGameRepository playerGameRepository;
 
-    @Autowired
-    private BoardTokenRepository boardTokenRepository;
+    public JPAGameDAO(List<GamePlugin> plugins, GameRepository gameRepository, BoardTokenRepository boardTokenRepository, RemovedTokenRepository removedTokenRepository, PlayerGameRepository playerGameRepository) {
+        this.gameRepository = gameRepository;
+        this.boardTokenRepository = boardTokenRepository;
+        this.removedTokenRepository = removedTokenRepository;
+        this.playerGameRepository = playerGameRepository;
 
-    @Autowired
-    private RemovedTokenRepository removedTokenRepository;
-
-    @Autowired
-    private PlayerGameRepository playerGameRepository;
-
-    public JPAGameDAO(List<GamePlugin> plugins) {
         pluginMap = new HashMap<>();
         for (GamePlugin plugin : plugins)
             pluginMap.put(plugin.getGameIdentifier(), plugin);
@@ -134,6 +131,7 @@ public class JPAGameDAO implements GameDAO {
         return game.getId();
     }
 
+    @Transactional
     @Override
     public boolean updateGame(Game game) throws SquareGamesDAOException {
         deleteGame(game.getId());
