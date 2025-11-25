@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import java.util.UUID;
 
 @Entity
-public class RemovedToken {
+public class RemovedTokenModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
