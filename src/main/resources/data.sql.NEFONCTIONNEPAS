@@ -1,0 +1,2 @@
+INSERT INTO game_model (board_size, id, uuid, game_type)
+VALUES (3,1,'2b373017-0f68-474f-b16d-139b139f70e1','tictactoe');
