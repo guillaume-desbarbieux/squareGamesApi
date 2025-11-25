@@ -8,29 +8,22 @@ import jakarta.persistence.Id;
 import java.util.UUID;
 
 @Entity
-public class Game {
+public class GameModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+
     private UUID uuid;
     private int boardSize;
     private String gameType;
 
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return id;
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 
     public UUID getUuid() {
         return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public int getBoardSize() {
@@ -47,5 +40,12 @@ public class Game {
 
     public void setGameType(String gameType) {
         this.gameType = gameType;
+    }
+
+    public void setId(Integer id){
+        this.id = id;
+    }
+    public Integer getId() {
+        return id;
     }
 }
