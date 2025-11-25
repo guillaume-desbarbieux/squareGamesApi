@@ -128,10 +128,11 @@ public class GameServiceImpl implements GameService {
         }
 
         if (gameMove.name() != null) {
-            Collection<Token> tokens = getRemainingTokens(gameId);
+            Collection<Token> tokens = game.getRemainingTokens();
             for (Token token : tokens)
                 if (Objects.equals(token.getName(), gameMove.name())) {
                     token.moveTo(gameMove.toCell());
+
                     gameDAO.updateGame(game);
                     return;
                 }
