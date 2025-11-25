@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import java.util.UUID;
 
 @Entity
-public class BoardToken {
+public class BoardTokenModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;

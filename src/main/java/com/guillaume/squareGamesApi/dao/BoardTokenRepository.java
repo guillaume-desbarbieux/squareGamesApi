@@ -1,7 +1,18 @@
 package com.guillaume.squareGamesApi.dao;
 
-import com.guillaume.squareGamesApi.model.BoardToken;
+import com.guillaume.squareGamesApi.model.BoardTokenModel;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.transaction.annotation.Transactional;
 
-public interface BoardTokenRepository extends CrudRepository<BoardToken, Integer> {
+import java.util.List;
+import java.util.UUID;
+
+public interface BoardTokenRepository extends CrudRepository<BoardTokenModel, Integer> {
+
+    List<BoardTokenModel> findByGameUUID(UUID gameUUID);
+
+    @Modifying
+    @Transactional
+    void deleteAllByGameUUID(UUID gameUUID);
 }
