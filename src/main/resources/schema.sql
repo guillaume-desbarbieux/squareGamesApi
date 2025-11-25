@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS boardToken
     name       VARCHAR(255) NOT NULL,
     x          INT          NOT NULL,
     y          INT          NOT NULL,
-    FOREIGN KEY (gameUuid) REFERENCES game (uuid) ON DELETE CASCADE ,
+    FOREIGN KEY (gameUuid) REFERENCES game (uuid) ON DELETE CASCADE,
     FOREIGN KEY (playerUuid, gameUuid) REFERENCES playerGame (uuid, gameUuid) ON DELETE CASCADE
 );
 
@@ -33,7 +33,6 @@ CREATE TABLE IF NOT EXISTS removedToken
     name       VARCHAR(255) NOT NULL,
     x          INT          NOT NULL,
     y          INT          NOT NULL,
-    FOREIGN KEY (gameUuid) REFERENCES game (uuid) ON DELETE CASCADE ,
+    FOREIGN KEY (gameUuid) REFERENCES game (uuid) ON DELETE CASCADE,
     FOREIGN KEY (playerUuid, gameUuid) REFERENCES playerGame (uuid, gameUuid) ON DELETE CASCADE
 );
-
