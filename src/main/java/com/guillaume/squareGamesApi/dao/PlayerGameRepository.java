@@ -12,10 +12,10 @@ import java.util.UUID;
 public interface PlayerGameRepository extends CrudRepository<PlayerGameModel, Integer> {
 
     @Query("SELECT p.playerUuid from PlayerGameModel p where p.gameUuid = :gameUuid")
-    List<UUID> findPlayerUuidByGameUuid(UUID gameUuid);
+    List<UUID> findPlayerUuidByGameUuid(String gameUuid);
 
     @Modifying
     @Transactional
-    void deleteAllByGameUuid(UUID gameUuid);
+    void deleteAllByGameUuid(String gameUuid);
 
 }

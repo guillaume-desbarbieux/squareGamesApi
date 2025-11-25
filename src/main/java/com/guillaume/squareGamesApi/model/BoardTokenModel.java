@@ -13,8 +13,8 @@ public class BoardTokenModel {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    private UUID gameUUID;
-    private UUID playerUUID;
+    private String gameUUID;
+    private String playerUUID;
     private String name;
     private int x;
     private int y;
@@ -27,19 +27,19 @@ public class BoardTokenModel {
         return id;
     }
 
-    public UUID getGameUUID() {
+    public String getGameUUID() {
         return gameUUID;
     }
 
-    public void setGameUUID(UUID gameUUID) {
+    public void setGameUUID(String gameUUID) {
         this.gameUUID = gameUUID;
     }
 
-    public UUID getPlayerUUID() {
+    public String getPlayerUUID() {
         return playerUUID;
     }
 
-    public void setPlayerUUID(UUID playerUUID) {
+    public void setPlayerUUID(String playerUUID) {
         this.playerUUID = playerUUID;
     }
 

@@ -13,8 +13,8 @@ public class PlayerGameModel {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    private UUID playerUuid;
-    private UUID gameUuid;
+    private String playerUuid;
+    private String gameUuid;
 
     public void setId(Integer id) {
         this.id = id;
@@ -24,19 +24,19 @@ public class PlayerGameModel {
         return id;
     }
 
-    public UUID getPlayerUuid() {
+    public String getPlayerUuid() {
         return playerUuid;
     }
 
-    public void setPlayerUuid(UUID playerUuid) {
+    public void setPlayerUuid(String playerUuid) {
         this.playerUuid = playerUuid;
     }
 
-    public UUID getGameUuid() {
+    public String getGameUuid() {
         return gameUuid;
     }
 
-    public void setGameUuid(UUID gameUuid) {
+    public void setGameUuid(String gameUuid) {
         this.gameUuid = gameUuid;
     }
 }

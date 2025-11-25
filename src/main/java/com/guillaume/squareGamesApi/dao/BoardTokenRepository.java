@@ -10,9 +10,9 @@ import java.util.UUID;
 
 public interface BoardTokenRepository extends CrudRepository<BoardTokenModel, Integer> {
 
-    List<BoardTokenModel> findByGameUUID(UUID gameUUID);
+    List<BoardTokenModel> findByGameUUID(String gameUUID);
 
     @Modifying
     @Transactional
-    void deleteAllByGameUUID(UUID gameUUID);
+    void deleteAllByGameUUID(String gameUUID);
 }

@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface RemovedTokenRepository extends CrudRepository<RemovedTokenModel, Integer> {
-    List<RemovedTokenModel> findByGameUUID(UUID gameUUID);
+    List<RemovedTokenModel> findByGameUUID(String gameUUID);
 
     @Modifying
     @Transactional
-    void deleteAllByGameUUID(UUID gameUUID);
+    void deleteAllByGameUUID(String gameUUID);
 }

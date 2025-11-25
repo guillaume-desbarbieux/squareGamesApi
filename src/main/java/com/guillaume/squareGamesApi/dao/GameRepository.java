@@ -13,11 +13,11 @@ public interface GameRepository extends CrudRepository<GameModel, Integer> {
     @Query("SELECT g.uuid from GameModel g")
     List<UUID> findAllUuids();
 
-    GameModel findByUuid(UUID uuid);
+    GameModel findByUuid(String uuid);
 
-    boolean existsByUuid(UUID gameId);
+    boolean existsByUuid(String gameId);
 
     @Modifying
     @Transactional
-    void deleteByUuid(UUID gameId);
+    void deleteByUuid(String gameId);
 }

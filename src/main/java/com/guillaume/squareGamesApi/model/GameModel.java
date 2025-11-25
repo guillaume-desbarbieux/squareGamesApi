@@ -13,16 +13,16 @@ public class GameModel {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    private UUID uuid;
+    private String uuid;
     private int boardSize;
     private String gameType;
 
 
-    public void setUuid(UUID uuid) {
+    public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
-    public UUID getUuid() {
+    public String getUuid() {
         return uuid;
     }
 
