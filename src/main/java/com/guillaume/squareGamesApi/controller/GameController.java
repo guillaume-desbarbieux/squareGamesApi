@@ -4,6 +4,11 @@ import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
 import com.guillaume.squareGamesApi.service.GameService;
 import fr.le_campus_numerique.square_games.engine.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +54,15 @@ public class GameController {
         return ResponseEntity.ok(gameUUIDs);
     }
 
+    @Operation(
+            summary = "Create a game",
+            description = "Create a game choosing beetwen Taquin, TicTacToe and Connect Four",
+            tags = {"Game", "Creation"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", content = {@Content(schema = @Schema(implementation = Game.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", content = {@Content(schema = @Schema())})
+
+    })
     @PostMapping
     public ResponseEntity<String> createGame(@RequestBody GameCreationParams params) {
         if (!gameService.getGameIdentifiers().contains(params.identifier()))
