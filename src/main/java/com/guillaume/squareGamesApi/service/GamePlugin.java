@@ -11,13 +11,16 @@ import java.util.Locale;
 import java.util.UUID;
 
 public interface GamePlugin {
-    Game createGame(GameCreationParams params);
+    Game createGame(GameCreationParams params, UUID userId);
+
     Game createGameWithIds(
             UUID gameId,
             int boardSize,
             List<UUID> players,
             Collection<TokenPosition<UUID>> boardTokens,
             Collection<TokenPosition<UUID>> removedTokens) throws InconsistentGameDefinitionException;
+
     String getName(Locale locale);
+
     String getGameIdentifier();
 }

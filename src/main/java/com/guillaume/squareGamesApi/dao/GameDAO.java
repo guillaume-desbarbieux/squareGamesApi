@@ -8,8 +8,6 @@ import java.util.UUID;
 public interface GameDAO {
     boolean existId(UUID gameId);
 
-    Collection<Game> getGames();
-
     Game getGameById(UUID gameId) throws SquareGamesDAOException;
 
     UUID addGame(Game game) throws SquareGamesDAOException;
@@ -18,5 +16,5 @@ public interface GameDAO {
 
     boolean deleteGame(UUID gameId) throws SquareGamesDAOException;
 
-    Collection<UUID> getGameUUIDs();
+    Collection<UUID> getGameUUIDs(UUID userId);
 }

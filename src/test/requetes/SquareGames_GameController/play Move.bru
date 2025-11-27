@@ -5,14 +5,18 @@ meta {
 }
 
 post {
-  url: http://localhost:8181/games/eb192b20-1260-4d5c-8bb3-2928f2070a28/play-move
+  url: http://localhost:8181/games/800b1262-e010-42e9-b840-62d6adcbcd4d/play-move
   body: json
   auth: inherit
 }
 
+headers {
+  X-UserId: a4379507-4e96-4796-b6a9-5d11acc71a90
+}
+
 body:json {
   {
-    "name":"0",
+    "name":"X",
     "toCell":{"x":"0",
               "y":"0"
              }

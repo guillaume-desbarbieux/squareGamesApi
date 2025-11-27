@@ -48,24 +48,30 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public UUID createGame(GameCreationParams params) throws IllegalArgumentException {
+    public UUID createGame(GameCreationParams params, UUID userId) throws IllegalArgumentException {
         GamePlugin plugin = pluginMap.get(params.identifier());
 
         if (plugin == null)
             throw new IllegalArgumentException("Unknown game Identifier : " + params.identifier());
-        Game game = plugin.createGame(params);
+        Game game = plugin.createGame(params, userId);
         return gameDAO.addGame(game);
     }
 
 
     @Override
-    public Game getGame(UUID gameId) {
-        return gameDAO.getGameById(gameId);
+    public Game getGame(UUID gameId, UUID playerId) throws SquareGamesDAOException {
+        Game game = gameDAO.getGameById(gameId);
+        if (game == null)
+            return null;
+        if (game.getPlayerIds().contains(playerId))
+            return game;
+        else
+            throw new SquareGameUnauthorizedException("");
     }
 
     @Override
-    public Map<CellPosition, Token> getBoardTokens(UUID gameId) {
-        Game game = getGame(gameId);
+    public Map<CellPosition, Token> getBoardTokens(UUID gameId, UUID userId) throws SquareGamesDAOException {
+        Game game = getGame(gameId, userId);
         if (game == null)
             return Map.of();
 
@@ -73,8 +79,8 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Collection<Token> getRemainingTokens(UUID gameId) {
-        Game game = getGame(gameId);
+    public Collection<Token> getRemainingTokens(UUID gameId, UUID userId) {
+        Game game = getGame(gameId, userId);
         if (game == null)
             return List.of();
 
@@ -82,8 +88,8 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Collection<Token> getRemovedTokens(UUID gameId) {
-        Game game = getGame(gameId);
+    public Collection<Token> getRemovedTokens(UUID gameId, UUID userId) {
+        Game game = getGame(gameId, userId);
         if (game == null)
             return List.of();
 
@@ -91,8 +97,8 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Set<CellPosition> getAllowedMovesFromRemaining(UUID gameId, String name) {
-        Collection<Token> tokens = getRemainingTokens(gameId);
+    public Set<CellPosition> getAllowedMovesFromRemaining(UUID gameId, String name, UUID userId) {
+        Collection<Token> tokens = getRemainingTokens(gameId, userId);
 
         for (Token token : tokens)
             if (Objects.equals(token.getName(), name))
@@ -101,8 +107,8 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Set<CellPosition> getAllowedMovesFromBoard(UUID gameID, CellPosition cellPosition) {
-        Map<CellPosition, Token> tokens = getBoardTokens(gameID);
+    public Set<CellPosition> getAllowedMovesFromBoard(UUID gameID, CellPosition cellPosition, UUID userId) {
+        Map<CellPosition, Token> tokens = getBoardTokens(gameID, userId);
 
         if (tokens == null)
             return Set.of();
@@ -111,13 +117,13 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public void playMove(UUID gameId, GameMoveParam gameMove) throws InvalidPositionException, IllegalArgumentException {
-        Game game = getGame(gameId);
+    public void playMove(UUID gameId, GameMoveParam gameMove, UUID userId) throws InvalidPositionException, IllegalArgumentException {
+        Game game = getGame(gameId, userId);
         if (game == null)
             return;
 
         if (gameMove.fromCell() != null) {
-            Token token = getBoardTokens(gameId).get(gameMove.fromCell());
+            Token token = getBoardTokens(gameId, userId).get(gameMove.fromCell());
             if (token == null)
                 throw new IllegalArgumentException("No token on the board at this position");
             else {
@@ -142,11 +148,6 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Collection<Game> getGames() {
-        return gameDAO.getGames();
-    }
-
-    @Override
     public String getGameName(String identifier, Locale locale) {
         GamePlugin gamePlugin = pluginMap.get(identifier);
         return gamePlugin.getName(locale);
@@ -167,12 +168,13 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Boolean deleteGame(UUID gameId) {
+    public Boolean deleteGame(UUID gameId, UUID userId) {
+        Game game = getGame(gameId, userId);
         return gameDAO.deleteGame(gameId);
     }
 
     @Override
-    public Collection<UUID> getGameUUIDs() {
-        return gameDAO.getGameUUIDs();
+    public Collection<UUID> getGameUUIDs(UUID userId) {
+        return gameDAO.getGameUUIDs(userId);
     }
 }

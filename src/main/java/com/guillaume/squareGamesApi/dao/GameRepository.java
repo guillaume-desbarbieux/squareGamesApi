@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface GameRepository extends CrudRepository<GameModel, Integer> {
-    @Query("SELECT g.uuid from GameModel g")
-    List<UUID> findAllUuids();
+    @Query("SELECT g.uuid FROM GameModel g JOIN PlayerGameModel p ON p.gameUuid = g.uuid WHERE p.playerUuid = :playerUuid")
+    List<UUID> findGameUuidsByPlayerUuid(String playerUuid);
 
     GameModel findByUuid(String uuid);
 

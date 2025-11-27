@@ -21,11 +21,6 @@ public class LocalGameDAO implements GameDAO {
     }
 
     @Override
-    public Collection<Game> getGames() {
-        return gameMap.values();
-    }
-
-    @Override
     public Game getGameById(UUID gameId) {
         return gameMap.get(gameId);
     }
@@ -54,7 +49,12 @@ public class LocalGameDAO implements GameDAO {
     }
 
     @Override
-    public Collection<UUID> getGameUUIDs() {
-        return gameMap.keySet();
+    public Collection<UUID> getGameUUIDs(UUID userId) {
+        Collection<UUID> uuids = new ArrayList<>();
+        for (Game game : gameMap.values())
+            if (game.getPlayerIds().contains(userId))
+                uuids.add(game.getId());
+
+        return uuids;
     }
 }

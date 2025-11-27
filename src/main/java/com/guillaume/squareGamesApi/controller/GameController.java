@@ -3,6 +3,7 @@ package com.guillaume.squareGamesApi.controller;
 import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
 import com.guillaume.squareGamesApi.service.GameService;
+import com.guillaume.squareGamesApi.service.SquareGameUnauthorizedException;
 import fr.le_campus_numerique.square_games.engine.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -43,8 +44,8 @@ public class GameController {
     }
 
     @GetMapping("/UUID")
-    public ResponseEntity<Collection<UUID>> getGameUUIDs() {
-        Collection<UUID> gameUUIDs = gameService.getGameUUIDs();
+    public ResponseEntity<Collection<UUID>> getGameUUIDs(@RequestHeader("X-UserId") UUID userId) {
+        Collection<UUID> gameUUIDs = gameService.getGameUUIDs(userId);
 
         if (gameUUIDs.isEmpty())
             return ResponseEntity
@@ -64,14 +65,14 @@ public class GameController {
 
     })
     @PostMapping
-    public ResponseEntity<String> createGame(@RequestBody GameCreationParams params) {
+    public ResponseEntity<String> createGame(@RequestBody GameCreationParams params, @RequestHeader("X-UserId") UUID userId) {
         if (!gameService.getGameIdentifiers().contains(params.identifier()))
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("unknown_Game_identifier");
 
         try {
-            UUID gameId = gameService.createGame(params);
+            UUID gameId = gameService.createGame(params, userId);
 
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()
@@ -88,14 +89,18 @@ public class GameController {
     }
 
     @GetMapping("/{gameId}")
-    public ResponseEntity<GameDTO> getGame(@PathVariable UUID gameId) {
+    public ResponseEntity<GameDTO> getGame(@PathVariable UUID gameId, @RequestHeader("X-UserId") UUID userId) {
+        try {
+            Game game = gameService.getGame(gameId, userId);
 
-        Game game = gameService.getGame(gameId);
-
-        if (game == null)
-            return ResponseEntity.notFound().build();
-        else
-            return ResponseEntity.ok(toDTO(game));
+            if (game == null)
+                return ResponseEntity.notFound().build();
+            else
+                return ResponseEntity.ok(toDTO(game));
+        } catch (SquareGameUnauthorizedException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     private GameDTO toDTO(Game game) {
@@ -134,104 +139,136 @@ public class GameController {
 
 
     @GetMapping("/{gameId}/tokens/from-board")
-    public ResponseEntity<Map<CellPosition, TokenDTO>> getBoardTokens(@PathVariable UUID gameId) {
+    public ResponseEntity<Map<CellPosition, TokenDTO>> getBoardTokens(@PathVariable UUID gameId, @RequestHeader("X-UserId") UUID userId) {
+        try {
+            if (gameService.getGame(gameId, userId) == null) {
+                return ResponseEntity.notFound().build();
+            }
+            Map<CellPosition, Token> tokens = gameService.getBoardTokens(gameId, userId);
+            if (tokens.isEmpty())
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            else
+                return ResponseEntity.ok(toDTO(tokens));
 
-        if (gameService.getGame(gameId) == null) {
-            return ResponseEntity.notFound().build();
+        } catch (
+                SquareGameUnauthorizedException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Map<CellPosition, Token> tokens = gameService.getBoardTokens(gameId);
-        if (tokens.isEmpty())
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        else
-            return ResponseEntity.ok(toDTO(tokens));
     }
 
     @GetMapping("/{gameId}/tokens/from-remaining")
-    public ResponseEntity<Collection<TokenDTO>> getRemainingTokens(@PathVariable UUID gameId) {
+    public ResponseEntity<Collection<TokenDTO>> getRemainingTokens(@PathVariable UUID gameId, @RequestHeader("X-UserId") UUID userId) {
+        try {
+            if (gameService.getGame(gameId, userId) == null)
+                return ResponseEntity.notFound().build();
 
-        if (gameService.getGame(gameId) == null)
-            return ResponseEntity.notFound().build();
-
-        Collection<Token> tokens = gameService.getRemainingTokens(gameId);
-        if (tokens.isEmpty())
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        else
-            return ResponseEntity.ok(toDTO(tokens));
+            Collection<Token> tokens = gameService.getRemainingTokens(gameId, userId);
+            if (tokens.isEmpty())
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            else
+                return ResponseEntity.ok(toDTO(tokens));
+        } catch (SquareGameUnauthorizedException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @GetMapping("/{gameId}/tokens/from-removed")
-    public ResponseEntity<Collection<TokenDTO>> getRemovedTokens(@PathVariable UUID gameId) {
+    public ResponseEntity<Collection<TokenDTO>> getRemovedTokens(@PathVariable UUID gameId, @RequestHeader("X-UserId") UUID userId) {
+        try {
+            if (gameService.getGame(gameId, userId) == null)
+                return ResponseEntity.notFound().build();
 
-        if (gameService.getGame(gameId) == null)
-            return ResponseEntity.notFound().build();
-
-        Collection<Token> tokens = gameService.getRemovedTokens(gameId);
-        if (tokens.isEmpty())
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        else
-            return ResponseEntity.ok(toDTO(tokens));
+            Collection<Token> tokens = gameService.getRemovedTokens(gameId, userId);
+            if (tokens.isEmpty())
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            else
+                return ResponseEntity.ok(toDTO(tokens));
+        } catch (SquareGameUnauthorizedException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @GetMapping("/{gameId}/allowed-moves/from-remaining")
-    public ResponseEntity<Set<CellPosition>> getAllowedMovesFromRemaining(@PathVariable UUID gameId, @RequestParam String name) {
+    public ResponseEntity<Set<CellPosition>> getAllowedMovesFromRemaining(@PathVariable UUID gameId, @RequestParam String name, @RequestHeader("X-UserId") UUID userId) {
+        try {
+            if (gameService.getGame(gameId, userId) == null)
+                return ResponseEntity.notFound().build();
 
-        if (gameService.getGame(gameId) == null)
-            return ResponseEntity.notFound().build();
-
-        Set<CellPosition> moves = gameService.getAllowedMovesFromRemaining(gameId, name);
-        if (moves.isEmpty())
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        else
-            return ResponseEntity.ok(moves);
+            Set<CellPosition> moves = gameService.getAllowedMovesFromRemaining(gameId, name, userId);
+            if (moves.isEmpty())
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            else
+                return ResponseEntity.ok(moves);
+        } catch (SquareGameUnauthorizedException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @GetMapping("/{gameId}/allowed-moves/from-board")
-    public ResponseEntity<Set<CellPosition>> getAllowedMovesFromBoard(@PathVariable UUID gameId, @RequestParam int x, @RequestParam int y) {
+    public ResponseEntity<Set<CellPosition>> getAllowedMovesFromBoard(@PathVariable UUID gameId, @RequestParam int x, @RequestParam int y, @RequestHeader("X-UserId") UUID userId) {
+        try {
+            if (gameService.getGame(gameId, userId) == null)
+                return ResponseEntity.notFound().build();
 
-        if (gameService.getGame(gameId) == null)
-            return ResponseEntity.notFound().build();
-
-        Set<CellPosition> moves = gameService.getAllowedMovesFromBoard(gameId, new CellPosition(x, y));
-        if (moves.isEmpty())
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        else
-            return ResponseEntity.ok(moves);
+            Set<CellPosition> moves = gameService.getAllowedMovesFromBoard(gameId, new CellPosition(x, y), userId);
+            if (moves.isEmpty())
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            else
+                return ResponseEntity.ok(moves);
+        } catch (SquareGameUnauthorizedException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     @PostMapping("/{gameId}/play-move")
-    public ResponseEntity<String> playMove(@PathVariable UUID gameId, @RequestBody GameMoveParam gameMove) {
-
-        if (gameService.getGame(gameId) == null)
-            return ResponseEntity.notFound().build();
-
-        if (gameMove.toCell() == null
-                || (gameMove.name() == null && gameMove.fromCell() == null))
-            return ResponseEntity
-                    .status((HttpStatus.BAD_REQUEST))
-                    .body("Champ_manquant_ou_nul");
-
+    public ResponseEntity<String> playMove(@PathVariable UUID gameId, @RequestBody GameMoveParam gameMove, @RequestHeader("X-UserId") UUID userId) {
         try {
-            gameService.playMove(gameId, gameMove);
-            return ResponseEntity.ok("Joli_coup_!" + gameMove);
-        } catch (InvalidPositionException | IllegalArgumentException e) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(e.getMessage());
+            if (gameService.getGame(gameId, userId) == null)
+                return ResponseEntity.notFound().build();
+
+            if (gameMove.toCell() == null
+                    || (gameMove.name() == null && gameMove.fromCell() == null))
+                return ResponseEntity
+                        .status((HttpStatus.BAD_REQUEST))
+                        .body("Champ_manquant_ou_nul");
+
+            try {
+                gameService.playMove(gameId, gameMove, userId);
+                return ResponseEntity.ok("Joli_coup_!" + gameMove);
+            } catch (InvalidPositionException | IllegalArgumentException e) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(e.getMessage());
+            }
+        } catch (SquareGameUnauthorizedException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
     @DeleteMapping("/{gameId}")
-    public ResponseEntity<String> deleteGame(@PathVariable UUID gameId) {
-        Game game = gameService.getGame(gameId);
+    public ResponseEntity<String> deleteGame(@PathVariable UUID gameId, @RequestHeader("X-UserId") UUID userId) {
+        try {
+            Game game = gameService.getGame(gameId, userId);
 
-        if (game == null)
-            return ResponseEntity.notFound().build();
 
-        Boolean deleted = gameService.deleteGame(gameId);
-        if (deleted)
-            return ResponseEntity.ok("Successfully deleted.");
-        else
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
+            if (game == null)
+                return ResponseEntity.notFound().build();
+
+            Boolean deleted = gameService.deleteGame(gameId, userId);
+            if (deleted)
+                return ResponseEntity.ok("Successfully deleted.");
+            else
+                return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
+        } catch (
+                SquareGameUnauthorizedException e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
-
 }

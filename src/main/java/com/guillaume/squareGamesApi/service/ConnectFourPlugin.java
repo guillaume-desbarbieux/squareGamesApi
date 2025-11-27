@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class ConnectFourPlugin implements GamePlugin {
@@ -32,13 +29,19 @@ public class ConnectFourPlugin implements GamePlugin {
     }
 
     @Override
-    public Game createGame(GameCreationParams params) {
+    public Game createGame(GameCreationParams params, UUID userId) {
 
         int playerCount = params.playerCount() == 0 ? defaultPlayerCount : params.playerCount();
-
         int boardSize = params.boardSize() == 0 ? defaultBoardSize : params.boardSize();
-
-        return factory.createGame(playerCount, boardSize);
+        if (userId == null)
+            return factory.createGame(playerCount, boardSize);
+        else {
+            Set<UUID> players = new HashSet<>();
+            players.add(userId);
+            for (int i = 1 ; i < playerCount ; i++)
+                players.add(UUID.randomUUID());
+            return factory.createGame(boardSize, players);
+        }
     }
 
     @Override

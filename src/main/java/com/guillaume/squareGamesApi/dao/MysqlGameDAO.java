@@ -5,7 +5,6 @@ import fr.le_campus_numerique.square_games.engine.Game;
 import fr.le_campus_numerique.square_games.engine.InconsistentGameDefinitionException;
 import fr.le_campus_numerique.square_games.engine.Token;
 import fr.le_campus_numerique.square_games.engine.TokenPosition;
-import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -29,14 +28,6 @@ public class MysqlGameDAO implements GameDAO {
     @Override
     public boolean existId(UUID gameId) {
         return getGameById(gameId) != null;
-    }
-
-    @Override
-    public Collection<Game> getGames() {
-        Collection<Game> games = new ArrayList<>();
-        for (UUID id : getGameUUIDs())
-            games.add(getGameById(id));
-        return games;
     }
 
     @Override
@@ -91,9 +82,6 @@ public class MysqlGameDAO implements GameDAO {
 
     @Override
     public UUID addGame(Game game) {
-
-        System.out.println("adding game in BDD");
-        System.out.println(game.getBoard());
         if (game == null || game.getId() == null)
             throw new SquareGamesDAOException("Can't save null game");
 
@@ -159,10 +147,10 @@ public class MysqlGameDAO implements GameDAO {
     }
 
     @Override
-    public Collection<UUID> getGameUUIDs() {
+    public Collection<UUID> getGameUUIDs(UUID userId) {
         return jdbc.query(
-                "SELECT uuid from game",
-                (rs, rowNum) -> UUID.fromString(rs.getString("uuid"))
+                "SELECT g.uuid FROM game g JOIN playerGame p ON p.gameUuid = g.uuid WHERE p.uuid = ?",
+                (rs, rowNum) -> UUID.fromString(rs.getString("uuid")), userId
         );
     }
 }

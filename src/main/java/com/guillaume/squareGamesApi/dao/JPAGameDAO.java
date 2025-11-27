@@ -44,14 +44,6 @@ public class JPAGameDAO implements GameDAO {
     }
 
     @Override
-    public Collection<Game> getGames() {
-        Collection<Game> games = new ArrayList<>();
-        for (UUID gameUuid : getGameUUIDs())
-            games.add(getGameById(gameUuid));
-        return games;
-    }
-
-    @Override
     public Game getGameById(UUID gameId) throws SquareGamesDAOException {
         GameModel gameModel = gameRepository.findByUuid(gameId.toString());
         if (gameModel == null)
@@ -149,7 +141,7 @@ public class JPAGameDAO implements GameDAO {
     }
 
     @Override
-    public Collection<UUID> getGameUUIDs() {
-        return gameRepository.findAllUuids();
+    public Collection<UUID> getGameUUIDs(UUID userId) {
+        return gameRepository.findGameUuidsByPlayerUuid(userId.toString());
     }
 }

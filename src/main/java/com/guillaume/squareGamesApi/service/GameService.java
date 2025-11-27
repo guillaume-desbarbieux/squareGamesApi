@@ -8,19 +8,28 @@ import java.util.*;
 
 public interface GameService {
     Collection<String> getGameIdentifiers();
-    UUID createGame(GameCreationParams params) throws IllegalArgumentException;
-    Game getGame(UUID gameId);
-    Map<CellPosition, Token> getBoardTokens(UUID gameId);
-    Collection<Token> getRemainingTokens(UUID gameId);
-    Collection<Token> getRemovedTokens(UUID gameId);
-    Set<CellPosition> getAllowedMovesFromRemaining(UUID gameID, String name);
-    Set<CellPosition> getAllowedMovesFromBoard(UUID gameID, CellPosition cellPosition);
-    void playMove(UUID gameId, GameMoveParam gameMove) throws InvalidPositionException, IllegalArgumentException;
-    Collection<Game> getGames();
+
+    UUID createGame(GameCreationParams params, UUID userId) throws IllegalArgumentException;
+
+    Game getGame(UUID gameId, UUID userId) throws SquareGameUnauthorizedException;
+
+    Map<CellPosition, Token> getBoardTokens(UUID gameId, UUID userId) throws SquareGameUnauthorizedException;
+
+    Collection<Token> getRemainingTokens(UUID gameId, UUID userId) throws SquareGameUnauthorizedException;
+
+    Collection<Token> getRemovedTokens(UUID gameId, UUID userId) throws SquareGameUnauthorizedException;
+
+    Set<CellPosition> getAllowedMovesFromRemaining(UUID gameID, String name, UUID userId) throws SquareGameUnauthorizedException;
+
+    Set<CellPosition> getAllowedMovesFromBoard(UUID gameID, CellPosition cellPosition, UUID userId) throws SquareGameUnauthorizedException;
+
+    void playMove(UUID gameId, GameMoveParam gameMove, UUID userId) throws InvalidPositionException, IllegalArgumentException, SquareGameUnauthorizedException;
+
     String getGameName(String identifier, Locale locale);
+
     Map<String, String> getCatalog(Locale locale);
 
-    Boolean deleteGame(UUID gameId);
+    Boolean deleteGame(UUID gameId, UUID userId) throws SquareGameUnauthorizedException;
 
-    Collection<UUID> getGameUUIDs();
+    Collection<UUID> getGameUUIDs(UUID userId);
 }
