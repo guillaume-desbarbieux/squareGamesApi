@@ -133,7 +133,7 @@ public class JPAGameDAO implements GameDAO {
         }
         return game.getId();
     }
-
+    @Transactional
     @Override
     public boolean updateGame(Game game) throws SquareGamesDAOException {
         deleteGame(game.getId());
