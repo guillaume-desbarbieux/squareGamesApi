@@ -9,7 +9,7 @@ import java.util.*;
 public interface GameService {
     Collection<String> getGameIdentifiers();
 
-    UUID createGame(GameCreationParams params, UUID userId) throws IllegalArgumentException;
+    UUID createGame(GameCreationParams params, UUID userId) throws IllegalArgumentException, SquareGameUnknownUserException;
 
     Game getGame(UUID gameId, UUID userId) throws SquareGameUnauthorizedException;
 
@@ -32,4 +32,5 @@ public interface GameService {
     Boolean deleteGame(UUID gameId, UUID userId) throws SquareGameUnauthorizedException;
 
     Collection<UUID> getGameUUIDs(UUID userId);
+
 }

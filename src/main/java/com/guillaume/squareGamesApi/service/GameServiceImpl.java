@@ -3,8 +3,13 @@ package com.guillaume.squareGamesApi.service;
 import com.guillaume.squareGamesApi.dao.*;
 import com.guillaume.squareGamesApi.model.*;
 import fr.le_campus_numerique.square_games.engine.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
+import java.sql.SQLOutput;
 import java.util.*;
 
 @Service
@@ -48,13 +53,30 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public UUID createGame(GameCreationParams params, UUID userId) throws IllegalArgumentException {
+    public UUID createGame(GameCreationParams params, UUID userId) throws IllegalArgumentException, SquareGameUnknownUserException {
+
+        if (!isPlayerRegistered(userId))
+            throw new SquareGameUnknownUserException();
+
+
         GamePlugin plugin = pluginMap.get(params.identifier());
 
         if (plugin == null)
             throw new IllegalArgumentException("Unknown game Identifier : " + params.identifier());
         Game game = plugin.createGame(params, userId);
         return gameDAO.addGame(game);
+    }
+
+    private boolean isPlayerRegistered(UUID userId) {
+
+        RestClient restClient = RestClient.create();
+
+        ResponseEntity<UserDTO> response = restClient.get()
+                .uri("http://localhost:8282/users/" + userId)
+                .retrieve()
+                .toEntity(UserDTO.class);
+
+        return response.getStatusCode().isSameCodeAs(HttpStatus.OK);
     }
 
 
@@ -177,4 +199,5 @@ public class GameServiceImpl implements GameService {
     public Collection<UUID> getGameUUIDs(UUID userId) {
         return gameDAO.getGameUUIDs(userId);
     }
+
 }

@@ -4,6 +4,7 @@ import com.guillaume.squareGamesApi.model.GameCreationParams;
 import com.guillaume.squareGamesApi.model.GameMoveParam;
 import com.guillaume.squareGamesApi.service.GameService;
 import com.guillaume.squareGamesApi.service.SquareGameUnauthorizedException;
+import com.guillaume.squareGamesApi.service.SquareGameUnknownUserException;
 import fr.le_campus_numerique.square_games.engine.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -85,8 +86,11 @@ public class GameController {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
+        } catch (SquareGameUnknownUserException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
 
     @GetMapping("/{gameId}")
     public ResponseEntity<GameDTO> getGame(@PathVariable UUID gameId, @RequestHeader("X-UserId") UUID userId) {
