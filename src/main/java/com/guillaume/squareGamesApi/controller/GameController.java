@@ -56,11 +56,11 @@ public class GameController {
 
     @Operation(
             summary = "Create a game",
-            description = "Create a game choosing betwen Taquin, TicTacToe and Connect Four",
+            description = "Create a game choosing beetwen Taquin, TicTacToe and Connect Four",
             tags = {"Game", "Creation"})
     @ApiResponses({
-            @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema(implementation = Game.class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "201", content = {@Content(schema = @Schema())})
+            @ApiResponse(responseCode = "201", content = {@Content(schema = @Schema(implementation = Game.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "400", content = {@Content(schema = @Schema())})
 
     })
     @PostMapping
