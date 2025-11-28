@@ -4,12 +4,11 @@ import com.guillaume.squareGamesApi.dao.*;
 import com.guillaume.squareGamesApi.model.*;
 import fr.le_campus_numerique.square_games.engine.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.sql.SQLOutput;
 import java.util.*;
 
 @Service
@@ -64,7 +63,67 @@ public class GameServiceImpl implements GameService {
         if (plugin == null)
             throw new IllegalArgumentException("Unknown game Identifier : " + params.identifier());
         Game game = plugin.createGame(params, userId);
+
+        sendGameToStatApi(game);
+
         return gameDAO.addGame(game);
+    }
+
+    private void sendGameToStatApi(Game game) {
+        RestClient restClient = RestClient.create();
+
+        GameStatDTO gameStatDTO = toDto(game);
+
+        ResponseEntity<UUID> reponse = restClient.post()
+                .uri("http://localhost:8383/stats")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(gameStatDTO)
+                .retrieve().
+                toEntity(UUID.class);
+        System.out.println(reponse);
+    }
+
+    private GameStatDTO toDto(Game game) {
+        return new GameStatDTO(
+                game.getId(),
+                game.getFactoryId(),
+                game.getBoardSize(),
+                game.getStatus(),
+                Optional.of(new ArrayList<>()),
+                game.getPlayerIds(),
+                Optional.of(game.getCurrentPlayerId()));
+    }
+
+    private GameMoveDTO toDto(GameMoveParam move, UUID gameId, UUID playerId) {
+        CellPositionDTO fromCell = null;
+        if (move.fromCell() != null)
+            fromCell = toDto(move.fromCell());
+        return new GameMoveDTO(
+                Optional.of(move.name()),
+                Optional.ofNullable(fromCell),
+                toDto(move.toCell()),
+                gameId,
+                playerId);
+
+    }
+
+    private CellPositionDTO toDto(CellPosition cellPosition) {
+        return new CellPositionDTO(cellPosition.x(), cellPosition.y());
+    }
+
+    private void sendMovetoStatApi(GameMoveParam gameMove, UUID gameId, UUID playerId) {
+        RestClient restClient = RestClient.create();
+        System.out.println("trying to send move to api");
+
+        GameMoveDTO gameMoveDTO = toDto(gameMove, gameId, playerId);
+        System.out.println(gameMoveDTO);
+        ResponseEntity<UUID> reponse = restClient.put()
+                .uri("http://localhost:8383/stats")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(gameMoveDTO)
+                .retrieve().
+                toEntity(UUID.class);
+        System.out.println(reponse);
     }
 
     private boolean isPlayerRegistered(UUID userId) {
@@ -75,6 +134,7 @@ public class GameServiceImpl implements GameService {
                 .uri("http://localhost:8282/users/" + userId)
                 .retrieve()
                 .toEntity(UserDTO.class);
+        //TODO mettre URL dans properties
 
         return response.getStatusCode().isSameCodeAs(HttpStatus.OK);
     }
@@ -150,6 +210,7 @@ public class GameServiceImpl implements GameService {
                 throw new IllegalArgumentException("No token on the board at this position");
             else {
                 token.moveTo(gameMove.toCell());
+                sendMovetoStatApi(gameMove, gameId, userId);
                 gameDAO.updateGame(game);
                 return;
             }
@@ -160,6 +221,7 @@ public class GameServiceImpl implements GameService {
             for (Token token : tokens)
                 if (Objects.equals(token.getName(), gameMove.name())) {
                     token.moveTo(gameMove.toCell());
+                    sendMovetoStatApi(gameMove, gameId, userId);
                     gameDAO.updateGame(game);
                     return;
                 }
@@ -168,6 +230,7 @@ public class GameServiceImpl implements GameService {
 
         throw new IllegalArgumentException("We can't identify the token you choose");
     }
+
 
     @Override
     public String getGameName(String identifier, Locale locale) {

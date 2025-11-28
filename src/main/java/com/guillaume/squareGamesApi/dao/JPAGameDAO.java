@@ -62,11 +62,11 @@ public class JPAGameDAO implements GameDAO {
 
         Collection<TokenPosition<UUID>> removedTokens = new ArrayList<>();
         for (RemovedTokenModel removedTokenModel : removedTokenRepository.findByGameUUID(gameId.toString()))
-                removedTokens.add(new TokenPosition<>(
-                        UUID.fromString(removedTokenModel.getPlayerUUID()),
-                        removedTokenModel.getName(),
-                        removedTokenModel.getX(),
-                        removedTokenModel.getY()));
+            removedTokens.add(new TokenPosition<>(
+                    UUID.fromString(removedTokenModel.getPlayerUUID()),
+                    removedTokenModel.getName(),
+                    removedTokenModel.getX(),
+                    removedTokenModel.getY()));
 
         GamePlugin plugin = pluginMap.get(gameModel.getGameType());
 
@@ -77,8 +77,7 @@ public class JPAGameDAO implements GameDAO {
                     players,
                     boardTokens,
                     removedTokens);
-        } catch (
-                InconsistentGameDefinitionException e) {
+        } catch (InconsistentGameDefinitionException e) {
             System.out.println("Error when creating : " + e.getMessage());
             return null;
         }
@@ -126,8 +125,8 @@ public class JPAGameDAO implements GameDAO {
     @Transactional
     @Override
     public boolean updateGame(Game game) throws SquareGamesDAOException {
-        deleteGame(game.getId());
-        return addGame(game) != null;
+        return deleteGame(game.getId())
+                && addGame(game) != null;
     }
 
     @Transactional
